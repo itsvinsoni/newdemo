@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prepe - भारतीय कृषि (Ultimate Infographic)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Required libraries for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #dbe7ff 100%);
+        }
+        .scroll-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            gap: 40px;
+            padding: 40px 0;
+            width: 100%;
+            height: 100vh;
+            scrollbar-width: none;
+        }
+        .scroll-container::-webkit-scrollbar { display: none; }
+        .slide {
+            flex-shrink: 0;
+            width: 1080px;
+            height: 1080px;
+            background-color: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            color: #1a202c;
+            position: relative;
+            box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.15);
+            border-radius: 36px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            overflow: hidden;
+            padding: 45px;
+            display: flex;
+            flex-direction: column;
+            background-image: url('data:image/svg+xml;utf8,<svg width="350" height="200" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" font-size="50" font-weight="bold" font-family="Poppins, sans-serif" fill="rgba(0,0,0,0.04)" text-anchor="middle" dominant-baseline="middle" transform="rotate(-30 175 100)">Prepe</text></svg>');
+        }
+        .brand-logo {
+            position: absolute;
+            top: 45px;
+            left: 45px;
+            font-size: 34px;
+            font-weight: 700;
+            color: #16a34a; /* Green for agriculture theme */
+            z-index: 1;
+        }
+        #download-pdf-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-image: linear-gradient(to right, #16a34a 0%, #22c55e 51%, #16a34a 100%);
+            background-size: 200% auto;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(22, 163, 74, 0.4);
+            transition: all 0.3s ease-in-out;
+            z-index: 100;
+            border: none;
+        }
+        #download-pdf-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 28px rgba(22, 163, 74, 0.5);
+            background-position: right center;
+        }
+        #loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+        }
+        .slide-title {
+            font-size: 46px;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 60px;
+            margin-bottom: 30px;
+            color: #1a202c;
+            letter-spacing: -1.5px;
+            position: relative;
+            z-index: 1;
+        }
+        .card {
+             background-color: rgba(255, 255, 255, 0.85);
+             border-radius: 22px;
+             padding: 20px;
+             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+             border: 1px solid rgba(255, 255, 255, 0.5);
+             display: flex;
+             flex-direction: column;
+             transition: all 0.3s ease-in-out;
+             position: relative;
+             z-index: 1;
+        }
+        .card:not(.mind-map-card):hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .card-title {
+             font-size: 20px;
+             font-weight: 700;
+             margin-bottom: 12px;
+             padding-bottom: 10px;
+             border-bottom: 1px solid rgba(0,0,0,0.07);
+             display: flex;
+             align-items: center;
+        }
+        .card-title .icon {
+            margin-right: 12px;
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background-color: var(--icon-bg, #f0fdf4);
+            color: var(--icon-color, #22c55e);
+        }
+        .card-content {
+            font-size: 15px;
+            line-height: 1.75;
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="loader-overlay">
+        <span><i class="fa-solid fa-spinner fa-spin mr-3"></i>Generating PDF...</span>
+    </div>
+
+    <div class="scroll-container">
+        <!-- Slide 1: Indian Agriculture Overview -->
+        <div id="slide1" class="slide">
+            <div class="brand-logo">Prepe</div>
+            <h1 class="slide-title">🌾 भारतीय कृषि: एक विज़ुअल हब</h1>
+            <div class="flex-grow flex items-center justify-center">
+                <div class="w-full h-full relative flex items-center justify-center">
+                    <svg class="absolute top-0 left-0 w-full h-full z-10" viewbox="0 0 990 990">
+                        <defs><linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#84cc16;stop-opacity:1" /><stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" /></linearGradient></defs>
+                        <line x1="495" y1="495" x2="215" y2="280" stroke="url(#lineGrad)" stroke-width="2.5" /><line x1="495" y1="495" x2="775" y2="280" stroke="url(#lineGrad)" stroke-width="2.5" /><line x1="495" y1="495" x2="111" y2="495" stroke="url(#lineGrad)" stroke-width="2.5" /><line x1="495" y1="495" x2="879" y2="495" stroke="url(#lineGrad)" stroke-width="2.5" /><line x1="495" y1="495" x2="215" y2="710" stroke="url(#lineGrad)" stroke-width="2.5" /><line x1="495" y1="495" x2="775" y2="710" stroke="url(#lineGrad)" stroke-width="2.5" />
+                    </svg>
+                    <div class="absolute w-72 h-72 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex flex-col items-center justify-center text-white shadow-2xl z-20"><h2 class="text-4xl font-bold">भारतीय</h2><p class="text-3xl font-semibold">कृषि (Krishi)</p></div>
+                    <div class="card mind-map-card absolute w-64 text-center transform -translate-x-[22rem] -translate-y-52 z-30"><h3 class="card-title justify-center text-base" style="--icon-color: #f97316; --icon-bg: #fff7ed;"><i class="fa-solid fa-cloud-sun-rain icon"></i> फसल ऋतुएँ</h3><ul class="text-xs list-disc list-inside text-left"><li><strong>खरीफ (जून-अक्टूबर):</strong> मानसून फसलें</li><li><strong>रबी (अक्टूबर-मार्च):</strong> शीतकालीन फसलें</li><li><strong>जायद (मार्च-जून):</strong> ग्रीष्मकालीन फसलें</li></ul></div>
+                    <div class="card mind-map-card absolute w-64 text-center transform translate-x-[22rem] -translate-y-52 z-30"><h3 class="card-title justify-center text-base" style="--icon-color: #0ea5e9; --icon-bg: #e0f2fe;"><i class="fa-solid fa-tractor icon"></i> कृषि के प्रकार</h3><ul class="text-xs list-disc list-inside text-left"><li><strong>निर्वाह कृषि:</strong> स्वयं के उपभोग हेतु</li><li><strong>वाणिज्यिक कृषि:</strong> बाजार में बिक्री हेतु</li><li><strong>रोपण कृषि:</strong> एक ही फसल का बड़ा क्षेत्र</li><li><strong>मिश्रित कृषि:</strong> फसल + पशुपालन</li></ul></div>
+                    <div class="card mind-map-card absolute w-64 text-center transform -translate-x-96 z-30"><h3 class="card-title justify-center text-base" style="--icon-color: #ef4444; --icon-bg: #fee2e2;"><i class="fa-solid fa-wheat-awn icon"></i> प्रमुख फसलें</h3><ul class="text-xs list-disc list-inside text-left"><li><strong>खाद्यान्न:</strong> चावल, गेहूँ, मक्का, बाजरा</li><li><strong>नकदी फसलें:</strong> गन्ना, कपास, जूट, तम्बाकू</li><li><strong>पेय फसलें:</strong> चाय, कॉफी</li><li><strong>तिलहन:</strong> सरसों, मूंगफली, सोयाबीन</li></ul></div>
+                    <div class="card mind-map-card absolute w-64 text-center transform translate-x-96 z-30"><h3 class="card-title justify-center text-base" style="--icon-color: #eab308; --icon-bg: #fefce8;"><i class="fa-solid fa-star icon"></i> मुख्य विशेषताएँ</h3><ul class="text-xs list-disc list-inside text-left"><li>मानसून पर निर्भरता</li><li>अधिकांश जनसंख्या की आजीविका</li><li>खाद्यान्न फसलों की प्रधानता</li><li>छोटी और विखंडित जोतें</li></ul></div>
+                    <div class="card mind-map-card absolute w-64 text-center transform -translate-x-[22rem] translate-y-52 z-30"><h3 class="card-title justify-center text-base" style="--icon-color: #8b5cf6; --icon-bg: #ede9fe;"><i class="fa-solid fa-arrow-up-right-dots icon"></i> कृषि क्रांतियाँ</h3><ul class="text-xs list-disc list-inside text-left"><li><strong>हरित क्रांति:</strong> खाद्यान्न उत्पादन</li><li><strong>श्वेत क्रांति:</strong> दुग्ध उत्पादन</li><li><strong>नीली क्रांति:</strong> मत्स्य उत्पादन</li><li><strong>पीली क्रांति:</strong> तिलहन उत्पादन</li></ul></div>
+                    <div class="card mind-map-card absolute w-64 text-center transform translate-x-[22rem] translate-y-52 z-30"><h3 class="card-title justify-center text-base" style="--icon-color: #be185d; --icon-bg: #fce7f3;"><i class="fa-solid fa-seedling icon"></i> संबद्ध क्षेत्र</h3><ul class="text-xs list-disc list-inside text-left"><li><strong>पशुपालन:</strong> डेयरी, मांस, ऊन</li><li><strong>बागवानी:</strong> फल, सब्जी, फूल</li><li><strong>वानिकी:</strong> वन उत्पादों का संग्रह</li><li><strong>मत्स्य पालन:</strong> मछली पकड़ना</li></ul></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Cropping Seasons Comparison -->
+        <div id="slide2" class="slide">
+            <div class="brand-logo">Prepe</div>
+            <h1 class="slide-title">📊 फसल ऋतुओं का तुलनात्मक विश्लेषण</h1>
+            <div class="flex-grow grid grid-cols-3 grid-rows-3 gap-6">
+                <div class="card col-span-3 row-span-1 p-6"><h3 class="card-title text-gray-700 m-0 pb-4" style="border:none;"><i class="fa-solid fa-chart-simple icon"></i> भारत में प्रमुख फसलों का उत्पादन हिस्सा (अनुमानित)</h3><div class="w-full flex-grow space-y-3.5 text-sm font-semibold flex flex-col justify-center"><div class="flex items-center gap-4"><span class="w-28 text-right font-bold">चावल</span><div class="h-5 flex-grow bg-gray-200 rounded-full"><div class="h-5 rounded-full bg-gradient-to-r from-blue-400 to-blue-500" style="width: 100%;"></div></div><span class="w-14 text-left font-bold">~44%</span></div><div class="flex items-center gap-4"><span class="w-28 text-right font-bold">गेहूँ</span><div class="h-5 flex-grow bg-gray-200 rounded-full"><div class="h-5 rounded-full bg-gradient-to-r from-orange-400 to-orange-500" style="width: 95%;"></div></div><span class="w-14 text-left font-bold">~38%</span></div><div class="flex items-center gap-4"><span class="w-28 text-right font-bold">मोटे अनाज</span><div class="h-5 flex-grow bg-gray-200 rounded-full"><div class="h-5 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500" style="width: 70%;"></div></div><span class="w-14 text-left font-bold">~11%</span></div><div class="flex items-center gap-4"><span class="w-28 text-right font-bold">दालें</span><div class="h-5 flex-grow bg-gray-200 rounded-full"><div class="h-5 rounded-full bg-gradient-to-r from-purple-400 to-purple-500" style="width: 50%;"></div></div><span class="w-14 text-left font-bold">~7%</span></div></div></div>
+                <div class="card col-span-1 row-span-2"><h3 class="card-title" style="--icon-color: #f97316; --icon-bg: #ffedd5;"><i class="fa-solid fa-cloud-showers-heavy icon"></i> खरीफ फसलें (मानसून)</h3><div class="card-content text-sm space-y-3 pl-2"><div><strong><i class="fa-solid fa-calendar-days text-orange-500 w-5"></i> बुवाई:</strong> जून-जुलाई</div><div><strong><i class="fa-solid fa-calendar-check text-orange-500 w-5"></i> कटाई:</strong> सितंबर-अक्टूबर</div><div><strong><i class="fa-solid fa-temperature-high text-orange-500 w-5"></i> आवश्यकता:</strong> अधिक तापमान और आर्द्रता</div><div><strong><i class="fa-solid fa-seedling text-orange-500 w-5"></i> प्रमुख फसलें:</strong><ul class="list-none pl-4 mt-1 space-y-1"><li><span class="font-semibold text-gray-700">अनाज:</span> चावल, मक्का, ज्वार, बाजरा</li><li><span class="font-semibold text-gray-700">दालें:</span> अरहर, मूंग, उड़द</li><li><span class="font-semibold text-gray-700">नकदी:</span> कपास, जूट, गन्ना</li><li><span class="font-semibold text-gray-700">तिलहन:</span> मूंगफली, सोयाबीन</li></ul></div><div><strong><i class="fa-solid fa-map-location-dot text-orange-500 w-5"></i> प्रमुख राज्य:</strong> प. बंगाल, यू.पी., आंध्र प्रदेश, महाराष्ट्र</li></div></div></div>
+                <div class="card col-span-1 row-span-2"><h3 class="card-title" style="--icon-color: #2563eb; --icon-bg: #dbeafe;"><i class="fa-solid fa-snowflake icon"></i> रबी फसलें (शीतकालीन)</h3><div class="card-content text-sm space-y-3 pl-2"><div><strong><i class="fa-solid fa-calendar-days text-blue-500 w-5"></i> बुवाई:</strong> अक्टूबर-दिसंबर</div><div><strong><i class="fa-solid fa-calendar-check text-blue-500 w-5"></i> कटाई:</strong> अप्रैल-जून</div><div><strong><i class="fa-solid fa-temperature-low text-blue-500 w-5"></i> आवश्यकता:</strong> ठंडा और शुष्क मौसम</div><div><strong><i class="fa-solid fa-seedling text-blue-500 w-5"></i> प्रमुख फसलें:</strong><ul class="list-none pl-4 mt-1 space-y-1"><li><span class="font-semibold text-gray-700">अनाज:</span> गेहूँ, जौ</li><li><span class="font-semibold text-gray-700">दालें:</span> चना, मटर, मसूर</li><li><span class="font-semibold text-gray-700">तिलहन:</span> सरसों, अलसी</li><li><span class="font-semibold text-gray-700">अन्य:</span> आलू</li></ul></div><div><strong><i class="fa-solid fa-map-location-dot text-blue-500 w-5"></i> प्रमुख राज्य:</strong> उत्तर प्रदेश, पंजाब, हरियाणा, राजस्थान</li></div></div></div>
+                <div class="card col-span-1 row-span-2"><h3 class="card-title" style="--icon-color: #eab308; --icon-bg: #fefce8;"><i class="fa-solid fa-sun icon"></i> जायद फसलें (ग्रीष्म)</h3><div class="card-content text-sm space-y-3 pl-2"><div><strong><i class="fa-solid fa-calendar-days text-yellow-500 w-5"></i> बुवाई:</strong> मार्च-अप्रैल</div><div><strong><i class="fa-solid fa-calendar-check text-yellow-500 w-5"></i> कटाई:</strong> मई-जून</div><div><strong><i class="fa-solid fa-cloud-sun text-yellow-500 w-5"></i> आवश्यकता:</strong> गर्म व शुष्क हवाएं</div><div><strong><i class="fa-solid fa-seedling text-yellow-500 w-5"></i> प्रमुख फसलें:</strong><ul class="list-none pl-4 mt-1 space-y-1"><li><span class="font-semibold text-gray-700">फल:</span> तरबूज, खरबूजा</li><li><span class="font-semibold text-gray-700">सब्जियां:</span> खीरा, ककड़ी, लौकी</li><li><span class="font-semibold text-gray-700">अन्य:</span> मूंग दाल, चारा फसलें</li></ul></div><div><strong><i class="fa-solid fa-map-location-dot text-yellow-500 w-5"></i> प्रमुख राज्य:</strong> अधिकांश उत्तरी और मध्य भारत</li></div></div></div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Agricultural Revolutions -->
+        <div id="slide3" class="slide">
+            <div class="brand-logo">Prepe</div>
+            <h1 class="slide-title">🔄 भारत की प्रमुख कृषि क्रांतियाँ</h1>
+            <div class="flex-grow grid grid-cols-2 grid-rows-2 gap-6">
+                <div class="card row-span-2"><h3 class="card-title" style="--icon-color: #15803d; --icon-bg: #dcfce7;"><i class="fa-solid fa-rocket icon"></i> महत्वपूर्ण क्रांतियाँ और उनके जनक</h3><div class="card-content flex flex-col justify-around text-sm"><div class="border-b-2 border-dashed border-gray-200 pb-3"><h4 class="font-bold text-lg text-green-800 flex items-center"><i class="fa-solid fa-wheat-awn text-2xl w-8 mr-2"></i> हरित क्रांति (Green)</h4><ul class="mt-2 list-disc list-inside text-left px-4 space-y-1"><li><strong>क्षेत्र:</strong> खाद्यान्न उत्पादन (गेहूँ और चावल)</li><li><strong>जनक:</strong> एम.एस. स्वामीनाथन (भारत में)</li><li><strong>विशेष:</strong> उच्च उपज किस्म (HYV) के बीजों, उर्वरकों और सिंचाई का उपयोग।</li></ul></div><div class="py-3 border-b-2 border-dashed border-gray-200"><h4 class="font-bold text-lg text-blue-800 flex items-center"><i class="fa-solid fa-cow text-2xl w-8 mr-2"></i> श्वेत क्रांति (White)</h4><ul class="mt-2 list-disc list-inside text-left px-4 space-y-1"><li><strong>क्षेत्र:</strong> दुग्ध उत्पादन (ऑपरेशन फ्लड)</li><li><strong>जनक:</strong> वर्गीज कुरियन</li><li><strong>विशेष:</strong> भारत को दुनिया का सबसे बड़ा दूध उत्पादक बनाया।</li></ul></div><div class="pt-3"><h4 class="font-bold text-lg text-cyan-800 flex items-center"><i class="fa-solid fa-fish-fins text-2xl w-8 mr-2"></i> नीली क्रांति (Blue)</h4><ul class="mt-2 list-disc list-inside text-left px-4 space-y-1"><li><strong>क्षेत्र:</strong> मत्स्य उत्पादन</li><li><strong>जनक:</strong> डॉ. अरुण कृष्णन और डॉ. हरीलाल चौधरी</li><li><strong>विशेष:</strong> मछली पालन और जलीय कृषि को बढ़ावा देना।</li></ul></div></div></div>
+                <div class="card"><h3 class="card-title" style="--icon-color: #ca8a04; --icon-bg: #fef9c3;"><i class="fa-solid fa-oil-well icon"></i> पीली क्रांति (Yellow)</h3><ul class="card-content text-sm space-y-2 pl-2"><li><strong><i class="fa-solid fa-check text-yellow-600 w-5"></i>क्षेत्र:</strong> खाद्य तेल और तिलहन फसलें (सरसों, सूरजमुखी)।</li><li><strong><i class="fa-solid fa-check text-yellow-600 w-5"></i>जनक:</strong> सैम पित्रोदा।</li><li><strong><i class="fa-solid fa-check text-yellow-600 w-5"></i>उद्देश्य:</strong> खाद्य तेलों में आत्मनिर्भरता प्राप्त करना।</li></ul></div>
+                <div class="card"><h3 class="card-title" style="--icon-color: #a21caf; --icon-bg: #f5d0fe;"><i class="fa-solid fa-spa icon"></i> अन्य प्रमुख क्रांतियाँ</h3><div class="card-content text-sm space-y-2.5">
+                    <p class="flex items-start"><i class="fa-solid fa-check text-fuchsia-500 w-5 mt-1"></i> <span class="ml-2"><strong>स्वर्ण (Golden):</strong> फल, शहद, बागवानी (निर्पख तुतेज)</span></p>
+                    <p class="flex items-start"><i class="fa-solid fa-check text-gray-500 w-5 mt-1"></i> <span class="ml-2"><strong>रजत (Silver):</strong> अंडा/पोल्ट्री (इंदिरा गांधी)</span></p>
+                    <p class="flex items-start"><i class="fa-solid fa-check text-red-500 w-5 mt-1"></i> <span class="ml-2"><strong>लाल (Red):</strong> मांस, टमाटर (विशाल तिवारी)</span></p>
+                    <p class="flex items-start"><i class="fa-solid fa-check text-pink-500 w-5 mt-1"></i> <span class="ml-2"><strong>गुलाबी (Pink):</strong> झींगा, प्याज (दुर्गेश पटेल)</span></p>
+                    <p class="flex items-start"><i class="fa-solid fa-check text-gray-700 w-5 mt-1"></i> <span class="ml-2"><strong>धूसर (Grey):</strong> उर्वरक</span></p>
+                    <p class="flex items-start"><i class="fa-solid fa-check text-blue-400 w-5 mt-1"></i> <span class="ml-2"><strong>गोल (Round):</strong> आलू</span></p>
+                </div></div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Quick Revision Matrix -->
+        <div id="slide4" class="slide">
+            <div class="brand-logo">Prepe</div>
+            <h1 class="slide-title">⚡ अंतिम रिविज़न: कृषि मेगा मैट्रिक्स</h1>
+            <div class="flex-grow w-full grid grid-cols-3 grid-rows-3 gap-6">
+                <div class="card"><h3 class="card-title"><i class="fa-solid fa-book-atlas icon"></i> कृषि शब्दावली</h3><ul class="card-content text-sm list-disc list-inside space-y-2 pl-2">
+                    <li><strong>MSP:</strong> न्यूनतम समर्थन मूल्य</li>
+                    <li><strong>बागवानी (Horticulture):</strong> फल-सब्जी की खेती</li>
+                    <li><strong>सेरीकल्चर:</strong> रेशम कीट पालन</li>
+                    <li><strong>विटिकल्चर:</strong> अंगूर की खेती</li>
+                    <li><strong>एपीकल्चर:</strong> मधुमक्खी पालन</li>
+                </ul></div>
+                <div class="card"><h3 class="card-title" style="--icon-color: #1d4ed8; --icon-bg: #e0e7ff;"><i class="fa-solid fa-hand-holding-dollar icon"></i> प्रमुख सरकारी योजनाएं</h3><ul class="card-content text-sm list-disc list-inside space-y-2 pl-2">
+                    <li><strong>PM-KISAN:</strong> (प्रत्यक्ष आय सहायता)</li>
+                    <li><strong>PM फसल बीमा योजना:</strong> (फसल सुरक्षा)</li>
+                    <li><strong>किसान क्रेडिट कार्ड (KCC):</strong> (रियायती दर पर ऋण)</li>
+                    <li><strong>मृदा स्वास्थ्य कार्ड:</strong> (उर्वरता की जाँच)</li>
+                    <li><strong>e-NAM:</strong> (ऑनलाइन कृषि बाजार)</li>
+                </ul></div>
+                <div class="card"><h3 class="card-title" style="--icon-color: #15803d; --icon-bg: #d1fae5;"><i class="fa-solid fa-building-columns icon"></i> प्रमुख अनुसंधान संस्थान</h3><ul class="card-content text-sm list-disc list-inside space-y-2.5 pl-2"><li><strong>IARI (पूसा):</strong> नई दिल्ली</li><li><strong>NDRI (डेयरी):</strong> करनाल</li><li><strong>CRRI (चावल):</strong> कटक</li><li><strong>IISR (गन्ना):</strong> लखनऊ</li><li><strong>CPRI (आलू):</strong> शिमला</li></ul></div>
+                <div class="card"><h3 class="card-title" style="--icon-color: #be123c; --icon-bg: #ffe4e6;"><i class="fa-solid fa-trophy icon"></i> शीर्ष उत्पादक राज्य</h3><ul class="card-content text-sm list-disc list-inside space-y-2 pl-2">
+                    <li><strong>गेहूँ, गन्ना, आलू:</strong> उत्तर प्रदेश</li>
+                    <li><strong>चावल, जूट:</strong> पश्चिम बंगाल</li>
+                    <li><strong>कपास, मूंगफली:</strong> गुजरात</li>
+                    <li><strong>चाय:</strong> असम</li>
+                    <li><strong>कॉफी, रेशम:</strong> कर्नाटक</li>
+                    <li><strong>मोटे अनाज, सरसों:</strong> राजस्थान</li>
+                </ul></div>
+                <div class="card"><h3 class="card-title" style="--icon-color: #701a75; --icon-bg: #f3e8ff;"><i class="fa-solid fa-recycle icon"></i> कृषि प्रणालियाँ</h3><ul class="card-content text-sm list-disc list-inside space-y-2 pl-2">
+                    <li><strong>झूम खेती:</strong> (स्थानांतरित कृषि, पूर्वोत्तर भारत)</li>
+                    <li><strong>फसल चक्र:</strong> (मृदा उर्वरता हेतु फसलों को बदलना)</li>
+                    <li><strong>जैविक खेती:</strong> (बिना रासायनिक उर्वरक/कीटनाशक)</li>
+                    <li><strong>शुष्क भूमि कृषि:</strong> (कम वर्षा वाले क्षेत्रों में)</li>
+                    <li><strong>समोच्च जुताई:</strong> (पहाड़ी ढलानों पर अपरदन रोकने हेतु)</li>
+                </ul></div>
+                <div class="card"><h3 class="card-title" style="--icon-color: #b45309; --icon-bg: #fef3c7;"><i class="fa-solid fa-circle-info icon"></i> महत्वपूर्ण तथ्य</h3><ul class="card-content text-sm list-disc list-inside space-y-2 pl-2">
+                    <li>GDP में कृषि का योगदान ~17% है।</li>
+                    <li>लगभग 55% कार्यबल कृषि में है।</li>
+                    <li>भारत दाल, जूट का सबसे बड़ा उत्पादक है।</li>
+                    <li>सिक्किम भारत का पहला पूर्ण जैविक राज्य है।</li>
+                    <li>'ऑपरेशन ग्रीन्स' - TOP (टमाटर, प्याज, आलू)।</li>
+                </ul></div>
+                <div class="card col-span-3 bg-gray-100/50"><h3 class="card-title text-gray-700" style="--icon-color: #4b5563; --icon-bg: #e5e7eb;"><i class="fa-solid fa-triangle-exclamation icon"></i> भारतीय कृषि की चुनौतियाँ</h3><ul class="card-content text-sm list-disc list-inside grid grid-cols-3 gap-x-6 gap-y-2.5 pl-2"><li>मानसून पर अत्यधिक निर्भरता</li><li>छोटी और अलाभकारी जोतें</li><li>अपर्याप्त भंडारण सुविधाएं</li><li>किसानों की ऋणग्रस्तता</li><li>मृदा का क्षरण और उर्वरता में कमी</li><li>विपणन और बिचौलियों की समस्या</li><li>तकनीकी ज्ञान का अभाव</li><li>जलवायु परिवर्तन का प्रभाव</li><li>फसल के बाद का नुकसान</li></ul></div>
+            </div>
+        </div>
+
+        <!-- Follow Up & Social Media Section -->
+        <div class="flex-shrink-0 w-[1080px] bg-gradient-to-br from-gray-50 to-green-100 rounded-3xl p-12 text-center shadow-xl border border-white/50">
+            <p class="text-2xl font-semibold text-green-600 mb-3">Welcome to Prepe</p>
+            <h2 class="text-4xl font-bold text-gray-800 mb-4"> अपनी तैयारी को नई उड़ान दें!</h2>
+            <p class="text-lg text-gray-600 mb-10">हमारे अन्य बेहतरीन कोर्सेस भी देखें।</p>
+            
+            <div class="grid grid-cols-3 gap-8 mb-10">
+                <!-- Offer Card -->
+                <a href="#" class="block bg-white p-6 rounded-2xl border border-gray-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out">
+                    <i class="fa-solid fa-tags text-4xl text-green-500 mb-3"></i>
+                    <h3 class="font-bold text-lg text-green-800">FLAT 50% OFF</h3>
+                    <p class="text-sm text-gray-500 mt-1">Limited Time Offer</p>
+                </a>
+                <!-- More Courses Card -->
+                <a href="https://shop.prepeai.in" target="_blank" class="block bg-white p-6 rounded-2xl border border-gray-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out">
+                    <i class="fa-solid fa-layer-group text-4xl text-teal-500 mb-3"></i>
+                    <h3 class="font-bold text-lg text-teal-800">Explore More Courses</h3>
+                    <p class="text-sm text-gray-500 mt-1">Expand Your Knowledge</p>
+                </a>
+                <!-- Instagram Card -->
+                <a href="https://instagram.com/prepe.ai" target="_blank" class="block bg-white p-6 rounded-2xl border border-gray-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out">
+                    <i class="fab fa-instagram text-4xl text-pink-500 mb-3"></i>
+                    <h3 class="font-bold text-lg text-pink-800">Follow on Instagram</h3>
+                    <p class="text-sm text-gray-500 mt-1">@prepe.ai</p>
+                </a>
+            </div>
+
+            <div class="border-t-2 border-dashed border-gray-300 pt-8">
+                <a href="https://www.prepeai.in" target="_blank" class="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold text-xl py-4 px-10 rounded-full shadow-lg hover:scale-105 transition-transform duration-300">
+                    <i class="fa-solid fa-globe mr-2"></i> Visit Our Website
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Single button for PDF download -->
+    <button id="download-pdf-btn">
+        <i class="fa-solid fa-file-pdf mr-2"></i> Download PDF
+    </button>
+
+    <script>
+        // PDF download functionality
+        const downloadPdfBtn = document.getElementById('download-pdf-btn');
+        const loaderOverlay = document.getElementById('loader-overlay');
+
+        downloadPdfBtn.addEventListener('click', async () => {
+            loaderOverlay.style.display = 'flex';
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [1080, 1080]
+            });
+
+            const slides = document.querySelectorAll('.slide');
+            
+            for (let i = 0; i < slides.length; i++) {
+                const slide = slides[i];
+                
+                const canvas = await html2canvas(slide, {
+                    width: 1080,
+                    height: 1080,
+                    scale: 2, 
+                    useCORS: true,
+                    backgroundColor: null, 
+                    logging: false,
+                });
+                
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = canvas.width;
+                finalCanvas.height = canvas.height;
+                const ctx = finalCanvas.getContext('2d');
+                
+                const gradient = ctx.createLinearGradient(0, 0, finalCanvas.width, finalCanvas.height);
+                gradient.addColorStop(0, '#f5f7fa');
+                gradient.addColorStop(1, '#dbe7ff');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                
+                ctx.drawImage(canvas, 0, 0);
+
+                const imgData = finalCanvas.toDataURL('image/jpeg', 0.9);
+
+                if (i > 0) {
+                    doc.addPage();
+                }
+                
+                doc.addImage(imgData, 'JPEG', 0, 0, 1080, 1080);
+            }
+
+            doc.save('Prepe-Indian-Agriculture.pdf');
+            loaderOverlay.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
+
