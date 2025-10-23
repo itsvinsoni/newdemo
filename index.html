@@ -3,2398 +3,560 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prepe - Motion in a Straight Line</title>
-    <!-- 
-      NOTE: As per instructions, no external fonts are loaded. 
-      We will rely on the system font stack defined in the CSS.
-    -->
+    <title>Prepe - Motion in a Straight Line (Physics Notes)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Required libraries for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
-        /* ==================== ROOT VARIABLES ==================== */
-        :root {
-            --primary: #fb923c; /* orange-400 */
-            --primary-light: #fed7aa; /* orange-200 */
-            --primary-dark: #f97316; /* orange-500 */
-            --secondary: #ea580c; /* orange-600 */
-            --text-dark: #1f2937;
-            --text-medium: #4b5563;
-            --text-light: #6b7280;
-            --bg-light: #f8fafc;
-            --border-color: #e2e8f0;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        /* ==================== GLOBAL STYLES ==================== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Styles from the original template (Prepe One Page Notes Code Complete.txt) */
         html {
             scroll-behavior: smooth;
         }
-
         body {
-            /* Using Inter as the primary font, with a robust fallback stack */
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #dbe7ff 100%); /* Original background */
         }
-
-        /* ==================== SLIDES CONTAINER ==================== */
-        .slides-container {
-            max-width: 1080px;
-            margin: 0 auto;
-            padding: 30px 15px;
+        .scroll-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            gap: 2.5rem; /* 40px */
+            padding: 2.5rem 0;
+            width: 100%;
+            min-height: 100vh;
+            scrollbar-width: none;
         }
-
-        /* ==================== SLIDE STYLES ==================== */
+        .scroll-container::-webkit-scrollbar { display: none; }
         .slide {
-            width: 100%;
-            min-height: 90vh; /* Ensures slide has height but can grow */
-            height: auto; /* Overrides any fixed height */
-            background: #ffffff;
-            margin-bottom: 30px;
+            flex-shrink: 0;
+            width: 95%; 
+            max-width: 1080px;
+            height: 1080px; /* Fixed height like original template */
+            background-color: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            color: #1a202c;
+            position: relative;
+            box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.15);
+            border-radius: 36px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            overflow: hidden;
+            padding: 1.5rem; /* 24px */
             display: flex;
             flex-direction: column;
-            box-shadow: var(--shadow-lg);
-            position: relative;
-            padding: 40px;
-            overflow: hidden;
-            border-radius: 24px;
-            border-top: 8px solid;
-            border-image: linear-gradient(90deg, var(--primary), var(--secondary)) 1;
+            background-image: url('data:image/svg+xml;utf8,<svg width="350" height="200" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" font-size="50" font-weight="bold" font-family="Poppins, sans-serif" fill="rgba(0,0,0,0.04)" text-anchor="middle" dominant-baseline="middle" transform="rotate(-30 175 100)">Prepe</text></svg>');
         }
-        
-        .slide::after {
-            content: 'Prepe';
+        @media (min-width: 640px) {
+            .slide {
+                padding: 2.8125rem; /* 45px */
+            }
+        }
+        .brand-logo {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 180px;
-            font-weight: 900;
-            color: rgba(0, 0, 0, 0.03);
+            top: 1.5rem; /* 24px */
+            left: 1.5rem; /* 24px */
+            font-size: 2rem; /* 32px */
+            font-weight: 700;
+            color: #f97316; /* Original Brand Color */
             z-index: 1;
-            pointer-events: none;
-            text-transform: uppercase;
         }
-
-        .slide-number {
-            position: absolute;
-            top: 20px;
+        @media (min-width: 640px) {
+           .brand-logo {
+                top: 2.8125rem; /* 45px */
+                left: 2.8125rem; /* 45px */
+                font-size: 2.125rem; /* 34px */
+           }
+        }
+        #download-pdf-btn {
+            position: fixed;
+            bottom: 20px;
             right: 20px;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-light);
-            background-color: #f1f5f9;
-            padding: 5px 15px;
-            border-radius: 20px;
-            z-index: 2;
-        }
-
-        /* ==================== HEADER ==================== */
-        .slide-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 35px;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 2;
-        }
-
-        .brand {
-            font-size: 36px;
-            font-weight: 900;
-            color: var(--primary-dark);
-        }
-        
-        .slide-title {
-            font-size: 52px;
-            font-weight: 900;
-            color: var(--text-dark);
-            text-align: right;
-            position: relative;
-            padding-bottom: 10px;
-            line-height: 1.2;
-        }
-
-        .slide-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 60%;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, var(--secondary), var(--primary));
-            border-radius: 2px;
-        }
-
-        /* ==================== CONTENT AREA ==================== */
-        .slide-content {
-            flex-grow: 1; /* Allows content to fill the slide */
-            display: flex;
-            gap: 30px;
-            width: 100%;
-            position: relative;
-            z-index: 2;
-        }
-
-        .main-column {
-            flex-basis: 65%;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            min-height: 100%; /* Ensures it tries to fill space */
-        }
-
-        .side-column {
-            flex-basis: 35%;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            min-height: 100%; /* Ensures it tries to fill space */
-        }
-
-        /* ==================== TYPOGRAPHY ==================== */
-        h3 {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin: 0 0 20px 0;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border-color);
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        h3::before {
-            content: '✨'; /* Demo file icon */
-            margin-right: 10px;
-        }
-        
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        li {
-            margin-bottom: 18px;
-        }
-
-        /* Style for main points */
-        .main-column > ul > li {
-            background-color: #f9fafb;
-            border-radius: 12px;
-            padding: 15px;
-            transition: all 0.2s ease;
-            border-left: 4px solid var(--primary);
-        }
-        
-        .main-column > ul > li:hover {
-            transform: translateX(5px);
-            box-shadow: var(--shadow-md);
-        }
-        
-        .point-title {
-            font-weight: 700;
-            font-size: 21px;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .point-title .icon {
-            margin-right: 12px;
-            font-size: 24px;
-            color: var(--primary);
-        }
-        
-        .point-desc,
-        .point-list {
-            font-size: 18px;
-            color: var(--text-medium);
-            padding-left: 36px;
-            line-height: 1.7;
-        }
-
-        .point-list li {
-            margin-bottom: 10px;
-            padding-left: 8px;
-            position: relative;
-            font-size: 17px; /* Slightly smaller for sub-points */
-        }
-
-        .point-list li::before {
-            content: '▸';
-            position: absolute;
-            left: -12px;
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        /* Style for examples, formulas, etc. */
-        .point-example {
-            font-style: italic;
-            font-size: 17px;
-            color: var(--text-light);
-            margin-top: 10px;
-            padding: 12px 16px;
-            border-left: 4px solid var(--primary);
-            background: #fffbeb;
-            border-radius: 8px;
-        }
-
-        .point-example::before {
-            content: '💡';
-            margin-right: 8px;
-        }
-
-        /* ==================== INFO CARDS (Side Column) ==================== */
-        .info-card {
-            background: #fff;
-            border: 1px solid var(--border-color);
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: var(--shadow-md);
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease-in-out;
-            flex-shrink: 0; /* Prevents shrinking */
-        }
-        
-        .info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--secondary);
-        }
-
-        .info-card.grow {
-            flex-grow: 1; /* This card will fill remaining vertical space */
-        }
-
-        .info-card h4 {
-            margin: 0 0 15px 0;
-            font-size: 22px;
-            color: var(--text-dark);
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-        }
-
-        .info-card h4::before {
-            content: '🔖'; /* Demo file icon */
-            margin-right: 10px;
-        }
-
-        .info-card p,
-        .info-card ul {
-            margin: 0;
-            font-size: 17px;
-            color: var(--text-medium);
-            line-height: 1.7;
-        }
-        
-        .info-card ul {
-             list-style-type: '▸';
-             padding-left: 20px;
-        }
-
-        /* ==================== TABLES ==================== */
-        .mini-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            font-size: 16px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-        }
-
-        .mini-table th,
-        .mini-table td {
-            border-bottom: 1px solid var(--border-color);
-            padding: 14px;
-            text-align: left;
-        }
-        
-        .mini-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .mini-table th {
-            background: var(--primary);
+            background-image: linear-gradient(to right, #1d4ed8 0%, #3b82f6 51%, #1d4ed8 100%); /* Blue Button */
+            background-size: 200% auto;
             color: white;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 15px;
-        }
-        
-        .mini-table tbody tr {
-             transition: background-color 0.2s ease;
-        }
-
-        .mini-table tbody tr:hover {
-            background: #fff7ed;
-        }
-
-        .mini-table tbody tr:nth-child(even) {
-            background: #f9fafb;
-        }
-
-        /* ==================== BADGES ==================== */
-        .badge-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        .badge {
-            background-color: var(--primary-light);
-            border: 1px solid var(--primary);
-            color: var(--secondary);
-            padding: 12px 8px;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 15px;
-            font-weight: 700;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            line-height: 1.4;
-        }
-
-        .badge:hover {
-            transform: scale(1.05);
-            background: var(--primary);
-            color: white;
-            box-shadow: var(--shadow-md);
-        }
-
-        /* ==================== TIMELINE ==================== */
-        .timeline {
-            border-left: 3px solid var(--primary);
-            padding-left: 25px;
-            margin-top: 15px;
-        }
-
-        .timeline-item {
-            position: relative;
-            padding-bottom: 25px;
-        }
-
-        .timeline-item:last-child {
-            padding-bottom: 0;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -32px;
-            top: 5px;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background: var(--primary);
-            border: 3px solid #fff;
-        }
-
-        .timeline-title {
-            font-weight: 700;
-            font-size: 19px;
-            color: var(--text-dark);
-            margin-bottom: 6px;
-        }
-
-        .timeline-desc {
-            font-size: 17px;
-            color: var(--text-medium);
-            line-height: 1.7;
-        }
-
-        /* ==================== FLOW CHART ==================== */
-        .flow-chart {
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            padding-top: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .flow-step {
-            text-align: center;
-            font-weight: 700;
-            font-size: 16px;
-            background: #f9fafb;
-            padding: 15px 10px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            transition: all 0.2s ease;
-            min-width: 100px;
-            flex-grow: 1;
-        }
-
-        .flow-step:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary);
-        }
-
-        .flow-arrow {
-            font-size: 30px;
-            color: var(--secondary);
-            font-weight: bold;
-        }
-        
-        /* ==================== FOOTER TAGS ==================== */
-        .slide-footer {
-            display: flex;
-            gap: 12px;
-            padding-top: 25px;
-            border-top: 1px solid var(--border-color);
-            margin-top: 30px; /* Pushes footer down */
-            flex-shrink: 0;
-            width: 100%;
-            flex-wrap: wrap;
-            position: relative;
-            z-index: 2;
-        }
-
-        .footer-tag {
-            background-color: var(--primary-light);
-            color: var(--secondary);
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: 700;
-            border: 1px solid transparent;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .footer-tag:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* ==================== HERO SLIDE ==================== */
-        .hero-slide {
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding-top: 60px;
-            padding-bottom: 60px;
-        }
-
-        .hero-title {
-            font-size: 84px; /* Slightly smaller for longer title */
-            font-weight: 900;
-            color: var(--text-dark);
-            margin-bottom: 15px;
-            letter-spacing: -3px;
-            line-height: 1.1;
-        }
-
-        .hero-subtitle {
-            font-size: 34px;
-            color: var(--secondary);
-            margin-bottom: 50px;
-            font-weight: 700;
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            width: 100%;
-        }
-
-        .hero-tile {
-            background: #f9fafb;
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-            text-align: left;
-        }
-
-        .hero-tile:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary);
-        }
-
-        .hero-tile h3 {
-            color: var(--primary-dark);
-            border: none;
-            padding: 0;
-            margin-bottom: 12px;
-            font-size: 24px;
-        }
-        
-        .hero-tile h3::before {
-            content: '📌'; /* Different icon for hero tiles */
-            margin-right: 10px;
-        }
-
-        .hero-tile p {
-            margin: 0;
-            font-size: 18px;
-            color: var(--text-medium);
-            line-height: 1.7;
-            font-weight: 500;
-        }
-        
-        /* ==================== STAT BOXES ==================== */
-        .stat-box {
-            background: #f9fafb;
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.2s ease;
-        }
-
-        .stat-box:hover {
-            transform: scale(1.05);
-            box-shadow: var(--shadow-md);
-        }
-
-        .stat-number {
-            font-size: 42px;
-            font-weight: 900;
-            color: var(--primary);
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .stat-label {
-            font-size: 16px;
-            color: var(--text-medium);
+            padding: 12px 24px;
+            border-radius: 9999px;
             font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease-in-out;
+            z-index: 100;
+            border: none;
         }
-
-        /* ==================== QUICK FACT BOX ==================== */
-        .quick-fact {
-            background: #fffbeb;
-            border-left: 5px solid #facc15; /* yellow-400 */
-            padding: 15px 20px;
-            border-radius: 0 8px 8px 0;
-            margin: 15px 0;
-            position: relative;
-        }
-
-        .quick-fact::before {
-            content: '⚡';
-            font-size: 20px;
-            position: absolute;
-            left: -15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: white;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-sm);
-            color: #ca8a04; /* yellow-600 */
-        }
-
-        .quick-fact p, .quick-fact strong {
-            font-size: 17px;
-            line-height: 1.7;
-            color: #a16207; /* yellow-700 */
-        }
-        
-        .quick-fact strong {
-            font-weight: 800;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        /* ==================== FORMULA CARD ==================== */
-        .formula-card {
-            background: #fdf2f8; /* pink-50 */
-            border: 1px solid #fbcfe8; /* pink-200 */
-            border-left: 5px solid #db2777; /* pink-600 */
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-        
-        .formula-card h4 {
-            margin: 0 0 10px 0;
-            font-size: 20px;
-            color: #9d174d; /* pink-800 */
-        }
-        
-        .formula-card h4::before {
-             content: '📐';
-             margin-right: 10px;
-        }
-        
-        .formula-card p {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 22px;
-            font-weight: 700;
-            color: #be185d; /* pink-700 */
-            text-align: center;
-            background: #fff;
-            padding: 10px;
-            border-radius: 4px;
-            overflow-x: auto;
-        }
-
-        /* ==================== RESPONSIVE ==================== */
-        @media (max-width: 1100px) {
-            .slide {
-                padding: 30px 25px;
-            }
-
-            .slide-content {
-                flex-direction: column;
-            }
-
-            .main-column,
-            .side-column {
-                flex-basis: auto;
-                width: 100%;
+        @media (min-width: 640px) {
+            #download-pdf-btn {
+                bottom: 30px;
+                right: 30px;
+                padding: 15px 30px;
+                font-size: 1.125rem;
             }
         }
-        
-        @media (max-width: 768px) {
-            .slides-container {
-                padding: 20px 10px;
-            }
-
-            .slide {
-                padding: 25px 20px;
-            }
-
-             .slide::after {
-                font-size: 120px;
-            }
-
-            .slide-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-                margin-bottom: 25px;
-            }
-
-            .brand {
-                font-size: 30px;
-            }
-
+        #download-pdf-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 28px rgba(59, 130, 246, 0.5);
+            background-position: right center;
+        }
+        #loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); display: none; justify-content: center;
+            align-items: center; z-index: 1000; color: white; font-size: 24px;
+            font-weight: 600; backdrop-filter: blur(5px);
+        }
+        .slide-title {
+            font-size: 2rem; /* 32px */
+            font-weight: 700; text-align: center; margin-top: 4rem;
+            margin-bottom: 2rem; color: #1a202c; /* Original Title Color */
+            letter-spacing: -1.5px;
+            position: relative; z-index: 1;
+        }
+        @media (min-width: 640px) {
             .slide-title {
-                font-size: 36px;
-                text-align: left;
-            }
-
-            .slide-title::after {
-                left: 0;
-                right: auto;
-            }
-
-            .hero-grid,
-            .slide-content[style*="grid-template-columns"] {
-                grid-template-columns: 1fr !important;
-            }
-            
-            .hero-title { font-size: 60px; }
-            .hero-subtitle { font-size: 24px; }
-            .hero-tile h3 { font-size: 22px; }
-            .hero-tile p { font-size: 16px; }
-
-            h3 { font-size: 24px; }
-            .point-title { font-size: 19px; }
-            .point-list { font-size: 16px; padding-left: 25px;}
-            .info-card h4 { font-size: 20px; }
-            .info-card p, .info-card ul { font-size: 16px; }
-
-
-            .mini-table {
-                font-size: 14px;
-            }
-            .mini-table th, .mini-table td {
-                padding: 10px;
+                font-size: 2.875rem; /* 46px */
+                margin-top: 3.75rem; /* 60px */
+                margin-bottom: 1.875rem; /* 30px */
             }
         }
-
-        @media (max-width: 480px) {
-            .slides-container {
-                padding: 15px 5px;
-            }
-            .slide {
-                padding: 20px 15px;
-                margin-bottom: 20px;
-            }
-             .slide::after {
-                font-size: 90px;
-            }
-            .slide-title { font-size: 30px; }
-            .hero-title { font-size: 48px; }
-            .hero-subtitle { font-size: 20px; }
+        .card {
+             background-color: rgba(255, 255, 255, 0.85);
+             border-radius: 22px; padding: 1.25rem;
+             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+             border: 1px solid rgba(255, 255, 255, 0.5);
+             display: flex; flex-direction: column;
+             transition: all 0.3s ease-in-out;
+             position: relative; z-index: 1;
         }
+        .card:not(.mind-map-card):hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .card-title {
+             font-size: 1.125rem; /* 18px */
+             font-weight: 700; margin-bottom: 0.75rem;
+             padding-bottom: 0.625rem; border-bottom: 1px solid rgba(0,0,0,0.07);
+             display: flex; align-items: center;
+             color: #1a202c; /* Original Card Title Color */
+        }
+        @media (min-width: 640px) {
+            .card-title { font-size: 1.25rem; /* 20px */ }
+        }
+        .card-title .icon {
+            margin-right: 0.75rem; font-size: 1.25rem; width: 36px; height: 36px;
+            display: grid; place-items: center; border-radius: 50%;
+            /* Default icon colors (can be overridden inline) */
+            background-color: var(--icon-bg, #e0f2fe); 
+            color: var(--icon-color, #0ea5e9); 
+        }
+        .card-content {
+            font-size: 0.9375rem; /* 15px */
+            line-height: 1.75; flex-grow: 1;
+            color: #374151;
+        }
+         .formula { /* Formula styling for physics */
+            background-color: #f0f9ff;
+            border-left: 4px solid #0ea5e9;
+            padding: 0.75rem 1rem; margin: 0.75rem 0;
+            font-family: 'Courier New', Courier, monospace; font-weight: bold;
+            color: #0891b2; border-radius: 0 8px 8px 0; overflow-x: auto;
+        }
+        ul { list-style-position: inside; }
+        strong { font-weight: 600; }
+
+        /* Adjusted styles for mindmap cards for better spacing */
+        .mindmap-container {
+            position: relative;
+            width: 100%;
+            height: 100%; /* Ensure container takes full space */
+            min-height: 600px; /* Ensure minimum height */
+        }
+        .center-hub {
+             position: absolute; 
+             left: 50%; 
+             top: 50%; 
+             transform: translate(-50%, -50%);
+             width: 18rem; /* 288px */
+             height: 18rem; /* 288px */
+        }
+         .mindmap-card {
+             position: absolute;
+             width: 16rem; /* 256px */
+             text-align: center;
+             z-index: 30;
+         }
     </style>
 </head>
 <body>
-    <main class="slides-container" id="slidesContainer">
+    <div id="loader-overlay">
+        <span><i class="fa-solid fa-spinner fa-spin mr-3"></i>Generating PDF...</span>
+    </div>
 
-        <!-- ==================== SLIDE 1: HERO ==================== -->
-        <section class="slide hero-slide">
-            <div class="slide-number">1 / 20</div>
-            <div class="brand" style="position: absolute; top: 40px; left: 40px;">Prepe</div>
-            <h1 class="hero-title">Motion in a Straight Line</h1>
-            <p class="hero-subtitle">The Foundation of Kinematics</p>
-            <div class="hero-grid">
-                <div class="hero-tile">
-                    <h3>Frame of Reference</h3>
-                    <p>Motion is always relative. An object can be at rest in one frame and in motion in another.</p>
-                </div>
-                <div class="hero-tile">
-                    <h3>Distance vs. Displacement</h3>
-                    <p>Distance is a scalar quantity (total path), while displacement is a vector quantity (initial to final point).</p>
-                </div>
-                <div class="hero-tile">
-                    <h3>Speed vs. Velocity</h3>
-                    <p>Speed is a scalar (distance/time), while velocity is a vector (displacement/time). Velocity also has direction.</p>
-                </div>
-                <div class="hero-tile">
-                    <h3>Acceleration</h3>
-                    <p>The rate of change of velocity. It is a vector quantity, with SI unit m/s².</p>
-                </div>
-                <div class="hero-tile">
-                    <h3>Kinematic Equations</h3>
-                    <p>These equations (v = u + at, etc.) apply to constant acceleration and describe motion.</p>
-                </div>
-                <div class="hero-tile">
-                    <h3>Motion Under Gravity</h3>
-                    <p>This is a special case of constant acceleration (a = g ≈ 9.8 m/s²), which applies to free fall.</p>
+    <div class="scroll-container">
+        <!-- Slide 1: Introduction - Corrected Layout -->
+        <div id="slide1" class="slide">
+            <div class="brand-logo">Prepe</div>
+            <h1 class="slide-title">Physics: Motion in a Straight Line (Intro)</h1> 
+             <div class="flex-grow flex items-center justify-center">
+                <div class="mindmap-container"> {/* Container for absolute positioning */}
+                    {/* Central Hub */}
+                     <div class="center-hub bg-gradient-to-br from-sky-500 to-indigo-500 rounded-full flex flex-col items-center justify-center text-white shadow-2xl z-20">
+                        <h2 class="text-4xl font-bold text-center leading-tight">Motion in a<br/>Straight Line</h2>
+                    </div>
+                    {/* SVG lines */}
+                    <svg class="absolute top-0 left-0 w-full h-full z-10" viewbox="0 0 1080 1080"> {/* Adjusted viewbox */}
+                       <defs><linearGradient id="lineGradPhysics" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#7dd3fc;stop-opacity:1" /><stop offset="100%" style="stop-color:#38bdf8;stop-opacity:1" /></linearGradient></defs>
+                       {/* Adjusted line coordinates for better spacing */}
+                       <line x1="540" y1="540" x2="280" y2="280" stroke="url(#lineGradPhysics)" stroke-width="2.5" /> {/* Top Left */}
+                       <line x1="540" y1="540" x2="800" y2="280" stroke="url(#lineGradPhysics)" stroke-width="2.5" /> {/* Top Right */}
+                       <line x1="540" y1="540" x2="180" y2="540" stroke="url(#lineGradPhysics)" stroke-width="2.5" /> {/* Mid Left */}
+                       <line x1="540" y1="540" x2="900" y2="540" stroke="url(#lineGradPhysics)" stroke-width="2.5" /> {/* Mid Right */}
+                       <line x1="540" y1="540" x2="280" y2="800" stroke="url(#lineGradPhysics)" stroke-width="2.5" /> {/* Bottom Left */}
+                       <line x1="540" y1="540" x2="800" y2="800" stroke="url(#lineGradPhysics)" stroke-width="2.5" /> {/* Bottom Right */}
+                    </svg>
+
+                    {/* Spokes with Adjusted Positioning */}
+                     <div class="card mindmap-card" style="left: 26%; top: 26%; transform: translate(-50%, -50%);"><h3 class="card-title justify-center text-base" style="--icon-color: #64748b; --icon-bg: #f1f5f9;"><i class="fa-solid fa-bed icon"></i> Rest & Motion</h3><ul class="text-xs list-disc list-inside text-left"><li>Object's position doesn't change w.r.t surroundings.</li><li>Object's position changes w.r.t surroundings.</li><li>Relative concepts.</li></ul></div>
+                     <div class="card mindmap-card" style="left: 74%; top: 26%; transform: translate(-50%, -50%);"><h3 class="card-title justify-center text-base" style="--icon-color: #ef4444; --icon-bg: #fee2e2;"><i class="fa-solid fa-map-marker-alt icon"></i> Frame of Reference</h3><ul class="text-xs list-disc list-inside text-left"><li>System to describe position/motion.</li><li>Origin + Coordinate Axes.</li><li>E.g., Cartesian System (x, y, z).</li></ul></div>
+                     <div class="card mindmap-card" style="left: 17%; top: 50%; transform: translate(-50%, -50%);"><h3 class="card-title justify-center text-base" style="--icon-color: #f97316; --icon-bg: #fff7ed;"><i class="fa-solid fa-route icon"></i> Types of Motion</h3><ul class="text-xs list-disc list-inside text-left"><li>Linear (Straight Line)</li><li>Circular (Circular Path)</li><li>Oscillatory (To & Fro)</li><li>Focus: Linear Motion</li></ul></div>
+                     <div class="card mindmap-card" style="left: 83%; top: 50%; transform: translate(-50%, -50%);"><h3 class="card-title justify-center text-base" style="--icon-color: #fb923c; --icon-bg: #fff7ed;"><i class="fa-solid fa-ruler-horizontal icon"></i> Distance</h3><ul class="text-xs list-disc list-inside text-left"><li>Actual path length.</li><li>Scalar quantity.</li><li>Always positive.</li><li>Unit: meter (m).</li></ul></div>
+                     <div class="card mindmap-card" style="left: 26%; top: 74%; transform: translate(-50%, -50%);"><h3 class="card-title justify-center text-base" style="--icon-color: #3b82f6; --icon-bg: #eff6ff;"><i class="fa-solid fa-location-arrow icon"></i> Displacement</h3><ul class="text-xs list-disc list-inside text-left"><li>Shortest distance (Initial to Final).</li><li>Vector quantity.</li><li>Can be +, -, or 0.</li><li>Unit: meter (m).</li></ul></div>
+                     <div class="card mindmap-card" style="left: 74%; top: 74%; transform: translate(-50%, -50%);"><h3 class="card-title justify-center text-base" style="--icon-color: #10b981; --icon-bg: #ecfdf5;"><i class="fa-solid fa-gauge-high icon"></i> Speed & Velocity</h3><ul class="text-xs list-disc list-inside text-left"><li>Avg Speed = Dist/Time (Scalar)</li><li>Avg Velocity = Disp/Time (Vector)</li><li>Inst. Velocity v = dx/dt</li><li>Inst. Speed = |v|</li></ul></div>
                 </div>
             </div>
-            <p style="font-weight: 700; color: var(--primary); margin-top: 40px; font-size: 22px; z-index: 2; position: relative;">
-                Scroll for Complete Notes ↓
-            </p>
-        </section>
+             <!-- Mobile: Same content displayed differently -->
+             <div class="md:hidden flex flex-col items-center gap-4 mt-8">
+                 <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <div class="card"><h3 class="card-title" style="--icon-color: #64748b; --icon-bg: #f1f5f9;"><i class="fa-solid fa-bed icon"></i> Rest & Motion</h3><p class="text-sm">Definition and relative nature.</p></div>
+                     <div class="card"><h3 class="card-title" style="--icon-color: #ef4444; --icon-bg: #fee2e2;"><i class="fa-solid fa-map-marker-alt icon"></i> Frame of Reference</h3><p class="text-sm">System (origin, axes) to describe motion.</p></div>
+                     <div class="card"><h3 class="card-title" style="--icon-color: #f97316; --icon-bg: #fff7ed;"><i class="fa-solid fa-route icon"></i> Types of Motion</h3><p class="text-sm">Linear, Circular, Oscillatory. Focus: Linear.</p></div>
+                     <div class="card"><h3 class="card-title" style="--icon-color: #fb923c; --icon-bg: #fff7ed;"><i class="fa-solid fa-ruler-horizontal icon"></i> Distance</h3><p class="text-sm">Scalar, actual path length, always positive.</p></div>
+                     <div class="card"><h3 class="card-title" style="--icon-color: #3b82f6; --icon-bg: #eff6ff;"><i class="fa-solid fa-location-arrow icon"></i> Displacement</h3><p class="text-sm">Vector, shortest path, can be +, -, 0.</p></div>
+                     <div class="card"><h3 class="card-title" style="--icon-color: #10b981; --icon-bg: #ecfdf5;"><i class="fa-solid fa-gauge-high icon"></i> Speed & Velocity</h3><p class="text-sm">Average and Instantaneous definitions.</p></div>
+                 </div>
+             </div>
+        </div>
 
-        <!-- ==================== SLIDE 2: Rest, Motion & Frame of Reference ==================== -->
-        <section class="slide">
-            <div class="slide-number">2 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Rest, Motion & Frame of Reference</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Basic Concepts</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🧘</span>Rest</div>
-                            <ul class="point-list">
-                                <li>When an object does not change its position with respect to its surroundings over time.</li>
-                                <li>Example: A book on a table, a clock on a wall.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">🏃</span>Motion</div>
-                            <ul class="point-list">
-                                <li>When an object changes its position with respect to its surroundings over time.</li>
-                                <li>Example: A moving car, a running athlete.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">🌐</span>Frame of Reference</div>
-                            <ul class="point-list">
-                                <li>It is a coordinate system + a clock, relative to which we measure an object's position and motion.</li>
-                                <li>Both motion and rest are relative. They depend on the observer's frame.</li>
-                            </ul>
-                            <p class="point-example">Example: A passenger in a moving train is at rest relative to a fellow passenger, but in motion relative to a person standing on the platform.</p>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">📍</span>Point Object</div>
-                            <ul class="point-list">
-                                <li>If an object covers a distance much larger than its own size during its motion, it can be considered a point object.</li>
-                                <li>This simplifies the analysis.</li>
-                            </ul>
-                            <p class="point-example">Example: A car traveling between two cities, the Earth revolving around the Sun.</p>
-                        </li>
+        <!-- Slide 2: Speed, Velocity, Acceleration -->
+        <div id="slide2" class="slide">
+            <div class="brand-logo">Prepe</div>
+            <h1 class="slide-title">Speed, Velocity & Acceleration</h1>
+            <div class="flex-grow grid grid-cols-1 md:grid-cols-3 md:grid-rows-3 gap-6">
+                 <div class="card md:col-span-3 md:row-span-1 p-6">
+                    <h3 class="card-title m-0 pb-4" style="border:none;"><i class="fa-solid fa-gauge-high icon" style="--icon-color: #10b981; --icon-bg: #ecfdf5;"></i> Average Speed vs Average Velocity</h3>
+                    <div class="w-full flex-grow space-y-4 text-sm flex flex-col justify-center">
+                        <p><strong>Average Speed:</strong> Total distance covered divided by the total time taken. It's a scalar quantity and always positive.</p>
+                        <p class="formula">Avg Speed = Total Distance / Total Time</p>
+                         <p><strong>Average Velocity:</strong> Total displacement divided by the total time taken. It's a vector quantity and can be positive, negative, or zero.</p>
+                         <p class="formula">Avg Velocity = Total Displacement / Total Time</p>
+                    </div>
+                </div>
+                <div class="card md:col-span-1 md:row-span-2">
+                    <h3 class="card-title"><i class="fa-solid fa-stopwatch icon" style="--icon-color: #ec4899; --icon-bg: #fdf2f8;"></i> Instantaneous Velocity & Speed</h3>
+                    <ul class="card-content text-sm space-y-4 pl-2">
+                        <li><strong>Inst. Velocity (v):</strong> Velocity at a specific instant.</li>
+                        <li class="formula">v = dx/dt</li>
+                        <li>It's the slope of the x-t graph at that instant.</li>
+                        <li><strong>Inst. Speed:</strong> Magnitude of instantaneous velocity.</li>
+                         <li class="formula">Speed = |v|</li>
+                        <li>Speedometer reading is instantaneous speed.</li>
                     </ul>
                 </div>
-                <div class="side-column">
-                    <div class="info-card">
-                        <h4>Types of Motion</h4>
-                        <table class="mini-table">
-                            <thead>
-                                <tr>
-                                    <th>Type</th>
-                                    <th>Dimension</th>
-                                    <th>Example</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>1D Motion</strong></td>
-                                    <td>One-Dimensional</td>
-                                    <td>Car on a straight road</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>2D Motion</strong></td>
-                                    <td>Two-Dimensional</td>
-                                    <td>Projectile, Carrom board</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>3D Motion</strong></td>
-                                    <td>Three-Dimensional</td>
-                                    <td>Flying kite, Gas molecule</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="info-card grow">
-                        <h4>Dimensions of Motion</h4>
-                        <ul>
-                            <li><strong>One-Dimensional (1D):</strong> Only one axis (e.g., x-axis) is needed to describe the motion. Also called Rectilinear Motion.</li>
-                            <li><strong>Two-Dimensional (2D):</strong> Two axes (e.g., x and y) are needed to describe the motion. The object moves on a plane.</li>
-                            <li><strong>Three-Dimensional (3D):</strong> All three axes (x, y, and z) are needed to describe the motion. The object moves in space.</li>
-                        </ul>
-                    </div>
+                 <div class="card md:col-span-1 md:row-span-2">
+                     <h3 class="card-title"><i class="fa-solid fa-rocket icon" style="--icon-color: #f59e0b; --icon-bg: #fffbeb;"></i> Acceleration (a)</h3>
+                     <ul class="card-content text-sm space-y-4 pl-2">
+                         <li>Rate of change of velocity.</li>
+                         <li><strong>Avg. Acceleration:</strong> Change in velocity / Time interval.</li>
+                         <li class="formula">a<sub>avg</sub> = Δv/Δt</li>
+                         <li><strong>Inst. Acceleration:</strong> Acceleration at a specific instant.</li>
+                         <li class="formula">a = dv/dt = d²x/dt²</li>
+                         <li>Vector quantity (m/s²).</li>
+                         <li>Positive (speeding up), Negative (slowing down - retardation), Zero (constant velocity).</li>
+                     </ul>
                 </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">🎯 Basics of Motion</div>
-                <div class="footer-tag">🌐 Frame of Reference</div>
-                <div class="footer-tag">📍 1D vs 2D vs 3D</div>
-                <div class="footer-tag">⭐ Foundation Topic</div>
-            </div>
-        </section>
-
-        <!-- ==================== SLIDE 3: Distance vs Displacement (Part 1) ==================== -->
-        <section class="slide">
-            <div class="slide-number">3 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Distance vs. Displacement</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Key Definitions</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🛣️</span>Distance</div>
-                            <ul class="point-list">
-                                <li><strong>Definition:</strong> The total path length covered by an object.</li>
-                                <li><strong>Quantity:</strong> Scalar quantity. It has only magnitude, no direction.</li>
-                                <li><strong>Value:</strong> Always Positive. It can never be zero or negative (if the object is in motion).</li>
-                                <li><strong>Dependency:</strong> It depends on the path taken.</li>
-                                <li><strong>SI Unit:</strong> meter (m).</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">🎯</span>Displacement</div>
-                            <ul class="point-list">
-                                <li><strong>Definition:</strong> The shortest, straight-line distance between the final position and the initial position.</li>
-                                <li><strong>Quantity:</strong> Vector quantity. It has both magnitude and direction.</li>
-                                <li><strong>Value:</strong> Can be Positive, Negative, or Zero.</li>
-                                <li><strong>Dependency:</strong> It only depends on the initial and final points, not the path.</li>
-                                <li><strong>SI Unit:</strong> meter (m).</li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <div class="quick-fact">
-                        <strong>The Golden Rule:</strong> The distance covered is always greater than or equal to the magnitude of the displacement.<br>
-                        <strong>Distance ≥ |Displacement|</strong>
-                    </div>
-                </div>
-                <div class="side-column">
-                    <div class="info-card">
-                        <h4>Quick Comparison</h4>
-                        <table class="mini-table">
-                            <thead>
-                                <tr>
-                                    <th>Feature</th>
-                                    <th>Distance</th>
-                                    <th>Displacement</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Type</strong></td>
-                                    <td>Scalar</td>
-                                    <td>Vector</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Definition</strong></td>
-                                    <td>Total path</td>
-                                    <td>Shortest path</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Value</strong></td>
-                                    <td>Always Positive (+)</td>
-                                    <td>+, -, or 0</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Path Dept.</strong></td>
-                                    <td>✅ Yes (Depends)</td>
-                                    <td>❌ No (Independent)</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Uniqueness</strong></td>
-                                    <td>Many paths</td>
-                                    <td>Unique</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="info-card grow">
-                        <h4>Visual Example</h4>
-                        <p style="text-align: center; font-weight: 600; margin-bottom: 10px;">A person goes from A to B:</p>
-                        <!-- Inline SVG Diagram -->
-                        <svg width="100%" height="200" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg" style="border: 1px dashed var(--border-color); border-radius: 8px;">
-                            <defs>
-                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
-                                <polygon points="0 0, 10 3.5, 0 7" fill="var(--secondary)" />
-                                </marker>
-                            </defs>
-                            <!-- Path 1: Distance (Curved) -->
-                            <path d="M 30 75 Q 150 10, 270 75" stroke="var(--primary)" stroke-width="3" fill="none" stroke-dasharray="5,5"/>
-                            <text x="150" y="45" font-size="14" fill="var(--primary)" text-anchor="middle">Path = Distance</text>
-                            
-                            <!-- Path 2: Displacement (Straight) -->
-                            <line x1="30" y1="75" x2="270" y2="75" stroke="var(--secondary)" stroke-width="3" marker-end="url(#arrowhead)"/>
-                            <text x="150" y="95" font-size="14" fill="var(--secondary)" text-anchor="middle">Straight Line = Displacement</text>
-                            
-                            <!-- Points A and B -->
-                            <circle cx="30" cy="75" r="5" fill="var(--text-dark)" />
-                            <text x="25" y="75" dy="20" font-size="16" fill="var(--text-dark)" font-weight="bold">A (Initial)</text>
-                            <circle cx="270" cy="75" r="5" fill="var(--text-dark)" />
-                            <text x="275" y="75" dy="20" font-size="16" fill="var(--text-dark)" font-weight="bold">B (Final)</text>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">🛣️ Distance (Scalar)</div>
-                <div class="footer-tag">🎯 Displacement (Vector)</div>
-                <div class="footer-tag">🔥 Most Important Difference</div>
-                <div class="footer-tag">📝 PYQ Guaranteed</div>
-            </div>
-        </section>
-        
-        <!-- ==================== SLIDE 4: Distance vs Displacement (Part 2) ==================== -->
-        <section class="slide">
-            <div class="slide-number">4 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Distance & Displacement: Examples</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Numerical Examples</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🔄</span>Case 1: Full Circular Path</div>
-                            <ul class="point-list">
-                                <li>An athlete completes one full circle of radius 'r'.</li>
-                                <li><strong>Distance:</strong> Total path length = Circumference of the circle.<br>
-                                    <span style="font-weight: bold; color: var(--primary-dark); font-family: monospace;">Distance = 2πr</span></li>
-                                <li><strong>Displacement:</strong> The athlete returns to the initial point (Final position = Initial position).<br>
-                                    <span style="font-weight: bold; color: var(--secondary); font-family: monospace;">Displacement = 0</span></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">🌗</span>Case 2: Half Circular Path</div>
-                            <ul class="point-list">
-                                <li>An athlete goes from A to B (diametrically opposite) on a path of radius 'r'.</li>
-                                <li><strong>Distance:</strong> Semi-circumference.<br>
-                                    <span style="font-weight: bold; color: var(--primary-dark); font-family: monospace;">Distance = πr</span></li>
-                                <li><strong>Displacement:</strong> Straight line from A to B = Diameter of the circle.<br>
-                                    <span style="font-weight: bold; color: var(--secondary); font-family: monospace;">Displacement = 2r</span></li>
-                            </ul>
-                        </li>
-                         <li>
-                            <div class="point-title"><span class="icon">➡️</span>Case 3: Straight Line</div>
-                            <ul class="point-list">
-                                <li>A car goes from 0 to A (50m) and then returns from A to B (at 30m).</li>
-                                <li><strong>Distance:</strong> (0 to A) + (A to B) = 50m + (50-30)m = 50m + 20m.<br>
-                                    <span style="font-weight: bold; color: var(--primary-dark); font-family: monospace;">Distance = 70 m</span></li>
-                                <li><strong>Displacement:</strong> Final (B at 30m) - Initial (0m).<br>
-                                    <span style="font-weight: bold; color: var(--secondary); font-family: monospace;">Displacement = +30 m</span></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="info-card">
-                        <h4>Key Observations</h4>
-                        <ul>
-                            <li><strong>Zero Displacement:</strong> Displacement can be zero, even if the distance is not (e.g., a full circle).</li>
-                            <li><strong>Negative Displacement:</strong> If the object ends up to the left of the origin (in 1D).</li>
-                            <li><strong>Equality:</strong> The magnitude of distance and displacement are equal only if the object moves in a straight line without changing direction.</li>
-                        </ul>
-                    </div>
-                     <div class="formula-card">
-                        <h4>The Golden Rule</h4>
-                        <p>Distance ≥ |Displacement|</p>
-                    </div>
-                    <div class="info-card grow">
-                        <h4>PYQ Focus</h4>
-                        <p>Questions in exams often involve circular paths or back-and-forth motion on a straight line.</p>
-                        <div class="quick-fact" style="margin-top: 15px;">
-                            <strong>Remember:</strong> The Odometer measures distance, not displacement.
+                <div class="card md:col-span-1 md:row-span-2">
+                    <h3 class="card-title"><i class="fa-solid fa-equals icon" style="--icon-color: #14b8a6; --icon-bg: #f0fdfa;"></i> Uniform & Non-Uniform Motion</h3>
+                    <div class="card-content space-y-3 text-sm pt-2">
+                        <div>
+                            <h4 class="font-bold text-sky-700">Uniform Motion</h4>
+                            <p class="mt-1">Object covers equal distances in equal time intervals.</p>
+                            <p class="mt-1">Velocity is <strong>constant</strong>.</p>
+                            <p class="mt-1">Acceleration is <strong>zero</strong>.</p>
+                        </div>
+                         <div>
+                            <h4 class="font-bold text-sky-700">Non-Uniform Motion</h4>
+                            <p class="mt-1">Object covers unequal distances in equal time intervals.</p>
+                             <p class="mt-1">Velocity is <strong>variable</strong>.</p>
+                             <p class="mt-1">Acceleration is <strong>non-zero</strong>.</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="slide-footer">
-                <div class="footer-tag">🔄 Circular Motion</div>
-                <div class="footer-tag">➡️ Straight Line Motion</div>
-                <div class="footer-tag">Equals 0, +, -</div>
-                <div class="footer-tag">Numerical Practice</div>
-            </div>
-        </section>
+        </div>
 
-        <!-- ==================== SLIDE 5: Speed ==================== -->
-        <section class="slide">
-            <div class="slide-number">5 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Speed</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Definition & Properties</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🚄</span>Definition: Speed</div>
-                            <ul class="point-list">
-                                <li><strong>Concept:</strong> "How fast an object is moving."</li>
-                                <li><strong>Formal:</strong> The distance covered by an object per unit time.</li>
-                                <li><strong>Quantity:</strong> Scalar quantity. It has only magnitude, no direction.</li>
-                                <li><strong>Value:</strong> Always Positive or zero. It can never be negative.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">📐</span>Formula</div>
-                            <ul class="point-list">
-                                <li>Speed = Distance / Time</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">v = s / t</span></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">⏱️</span>Units & Dimension</div>
-                            <ul class="point-list">
-                                <li><strong>SI Unit:</strong> meter per second (m/s) or ms⁻¹</li>
-                                <li><strong>CGS Unit:</strong> centimeter per second (cm/s)</li>
-                                <li><strong>Other:</strong> kilometer per hour (km/h)</li>
-                                <li><strong>Dimensional Formula:</strong> [M⁰ L¹ T⁻¹]</li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <div class="quick-fact">
-                        <strong>Conversion:</strong> To convert km/h to m/s, multiply by <strong>5/18</strong>.<br>
-                        <strong>Example:</strong> 36 km/h = 36 * (5/18) = 10 m/s.
-                    </div>
-                </div>
-                <div class="side-column">
-                    <div class="info-card">
-                        <h4>Types of Speed</h4>
-                        <p>Different types of speed are used to describe motion:</p>
-                        <ul>
-                            <li><strong>Uniform Speed:</strong> The object covers equal distances in equal intervals of time.</li>
-                            <li><strong>Non-Uniform Speed:</strong> The object covers unequal distances in equal intervals of time. (e.g., car in traffic)</li>
-                            <li><strong>Average Speed:</strong> The average over the entire journey.</li>
-                            <li><strong>Instantaneous Speed:</strong> The speed at a specific instant.</li>
-                        </ul>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-number">3x10⁸</span>
-                        <span class="stat-label">Speed of Light (m/s)</span>
-                    </div>
-                    <div class="info-card grow">
-                        <h4>Speedometer</h4>
-                        <p>The speedometer in vehicles measures <strong>Instantaneous Speed</strong>.</p>
-                        <p style="margin-top: 15px;">The Odometer measures total <strong>Distance</strong>.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">🚄 Speed (Scalar)</div>
-                <div class="footer-tag">📐 Formula: v = s / t</div>
-                <div class="footer-tag">⏱️ Unit: m/s</div>
-                <div class="footer-tag">Conversion: 5/18</div>
-            </div>
-        </section>
-
-        <!-- ==================== SLIDE 6: Types of Speed ==================== -->
-        <section class="slide">
-            <div class="slide-number">6 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Types of Speed</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Detailed Classification</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🟰</span>Uniform Speed</div>
-                            <ul class="point-list">
-                                <li>When an object covers equal distances in equal intervals of time, no matter how small the time intervals are.</li>
-                                <li>In this case, Average Speed = Instantaneous Speed.</li>
-                                <li>Graph (x-t): Is a straight line.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">📈</span>Non-Uniform Speed</div>
-                            <ul class="point-list">
-                                <li>When an object covers unequal distances in equal intervals of time.</li>
-                                <li>This happens when the speed is changing (increasing or decreasing).</li>
-                                <li>Graph (x-t): Is a curve.</li>
-                                <li>Example: Driving a car on a crowded street.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">📊</span>Average Speed</div>
-                            <ul class="point-list">
-                                <li>The ratio of the total distance covered to the total time taken for the entire journey.</li>
-                                <li>It tells how fast the object moved *on average*.</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">V_avg = Total Distance / Total Time</span></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">⏱️</span>Instantaneous Speed</div>
-                            <ul class="point-list">
-                                <li>The speed of an object at a particular instant of time or at a particular point on its path.</li>
-                                <li>This is the speed that a speedometer shows.</li>
-                                <li><strong>Calculus:</strong> It is the derivative of distance with respect to time.</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">v = ds / dt</span> (where Δt → 0)</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="formula-card">
-                        <h4>Average Speed: Special Case</h4>
-                        <p style="font-size: 17px; line-height: 1.6; padding: 15px;">
-                            If an object covers half the distance with speed v₁ and the next half distance with speed v₂ (Distance is split):
-                            <br><strong style="font-size: 20px; color: #be185d;">V_avg = 2v₁v₂ / (v₁ + v₂)</strong>
-                            <br>(This is the Harmonic Mean)
-                        </p>
-                    </div>
-                    <div class="formula-card" style="background: #eff6ff; border-color: #bfdbfe; border-left-color: #2563eb;">
-                         <h4 style="color: #1e3a8a;">Special Case 2</h4>
-                         <p style="font-size: 17px; line-height: 1.6; padding: 15px; color: #1e40af;">
-                            If an object travels for half the time with speed v₁ and the next half time with speed v₂ (Time is split):
-                            <br><strong style="font-size: 20px; color: #1d4ed8;">V_avg = (v₁ + v₂) / 2</strong>
-                            <br>(This is the Arithmetic Mean)
-                        </p>
-                    </div>
-                    <div class="info-card grow">
-                        <h4>Key Distinction</h4>
-                        <p><strong>Average Speed</strong> is an 'overview' of the entire journey.</p>
-                        <p style="margin-top: 15px;"><strong>Instantaneous Speed</strong> is a 'snapshot' of a single instant.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">🟰 Uniform</div>
-                <div class="footer-tag">📈 Non-Uniform</div>
-                <div class="footer-tag">📊 Average (Total)</div>
-                <div class="footer-tag">⏱️ Instantaneous (Instant)</div>
-            </div>
-        </section>
-
-        <!-- ==================== SLIDE 7: Velocity ==================== -->
-        <section class="slide">
-            <div class="slide-number">7 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Velocity</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Definition & Properties</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🧭</span>Definition: Velocity</div>
-                            <ul class="point-list">
-                                <li><strong>Concept:</strong> "How fast and in which direction an object is moving."</li>
-                                <li><strong>Formal:</strong> The displacement of an object per unit time.</li>
-                                <li><strong>Quantity:</strong> Vector quantity. It has both magnitude + direction.</li>
-                                <li><strong>Value:</strong> Can be Positive (+), Negative (-), or Zero (0).</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">📐</span>Formula</div>
-                            <ul class="point-list">
-                                <li>Velocity = Displacement / Time</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">v⃗ = s⃗ / t</span> (Vector notation)</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">⏱️</span>Units & Dimension</div>
-                            <ul class="point-list">
-                                <li><strong>SI Unit:</strong> meter per second (m/s)</li>
-                                <li><strong>Dimensional Formula:</strong> [M⁰ L¹ T⁻¹]</li>
-                                <li>(The units and dimensions for speed and velocity are the same)</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">⚠️</span>Key Distinction</div>
-                            <ul class="point-list">
-                                <li>The magnitude of velocity is speed.</li>
-                                <li><strong>Example:</strong> "50 km/h" is a speed. "50 km/h towards North" is a velocity.</li>
-                                <li>If an object moves on a circular path at a uniform speed, its speed is constant, but its velocity is constantly changing (because the direction is changing).</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="info-card">
-                        <h4>Speed vs. Velocity</h4>
-                        <table class="mini-table">
-                            <thead>
-                                <tr>
-                                    <th>Feature</th>
-                                    <th>Speed</th>
-                                    <th>Velocity</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Type</strong></td>
-                                    <td>Scalar</td>
-                                    <td>Vector</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Depends on</strong></td>
-                                    <td>Distance</td>
-                                    <td>Displacement</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Value</strong></td>
-                                    <td>Always Positive (+)</td>
-                                    <td>+, -, or 0</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Change</strong></td>
-                                    <td>If speed changes</td>
-                                    <td>If speed *or* direction changes</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="quick-fact grow" style="display: flex; flex-direction: column; justify-content: center;">
-                       <strong>Golden Rule:</strong>
-                       <p>Average speed is always greater than or equal to the magnitude of the average velocity.</p>
-                       <strong style="text-align: center; margin-top: 10px; font-size: 18px;">Average Speed ≥ |Average Velocity|</strong>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">🧭 Velocity (Vector)</div>
-                <div class="footer-tag">📐 Formula: v⃗ = s⃗ / t</div>
-                <div class="footer-tag">Direction Matters!</div>
-                <div class="footer-tag">Speed vs Velocity</div>
-            </div>
-        </section>
-        
-        <!-- ==================== SLIDE 8: Types of Velocity ==================== -->
-        <section class="slide">
-            <div class="slide-number">8 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Types of Velocity</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Detailed Classification</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🟰</span>Uniform Velocity</div>
-                            <ul class="point-list">
-                                <li>When an object covers equal displacement in equal intervals of time.</li>
-                                <li><strong>Condition:</strong> Both magnitude (speed) and direction must be constant.</li>
-                                <li><strong>Path:</strong> The object must move in a straight line.</li>
-                                <li><strong>Acceleration:</strong> In this state, acceleration is zero.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">📈</span>Non-Uniform Velocity</div>
-                            <ul class="point-list">
-                                <li>If the velocity changes with time, it is called non-uniform velocity.</li>
-                                <li><strong>This can happen in 3 ways:</strong>
-                                    <ol style="padding-left: 20px; margin-top: 10px;">
-                                        <li>Only speed (magnitude) changes, not direction (e.g., car accelerating on a straight road).</li>
-                                        <li>Only direction changes, not speed (e.g., uniform circular motion).</li>
-                                        <li>Both speed and direction change (e.g., car accelerating on a curve).</li>
-                                    </ol>
-                                </li>
-                                <li>Whenever velocity is non-uniform, the object has acceleration.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">📊</span>Average Velocity</div>
-                            <ul class="point-list">
-                                <li>The ratio of Total Displacement to Total Time.</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">V_avg = Total Displacement / Total Time</span></li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">V_avg = (x₂ - x₁) / (t₂ - t₁) = Δx / Δt</span></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">⏱️</span>Instantaneous Velocity</div>
-                            <ul class="point-list">
-                                <li>The velocity of an object at a particular instant.</li>
-                                <li><strong>Calculus:</strong> It is the derivative of displacement with respect to time.</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">v = dx / dt</span> (where Δt → 0)</li>
-                                <li>The magnitude of instantaneous velocity is instantaneous speed.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="info-card">
-                        <h4>Zero Average Velocity?</h4>
-                        <p>Yes! If an object returns to its starting point after a journey:</p>
-                        <ul>
-                            <li>Total Displacement = 0</li>
-                            <li><strong>Average Velocity = 0</strong></li>
-                            <li>...but Total Distance > 0, so <strong>Average Speed > 0</strong>.</li>
-                        </ul>
-                        <p class="point-example" style="background: #fff;">Example: A full circular loop.</p>
-                    </div>
-                     <div class="formula-card">
-                        <h4>Average Velocity: Special Case</h4>
-                        <p style="font-size: 17px; line-height: 1.6; padding: 15px;">
-                            If an object moves with constant acceleration 'a' from 'u' to 'v':
-                            <br><strong style="font-size: 20px; color: #be185d;">V_avg = (u + v) / 2</strong>
-                            <br>(This is valid ONLY for constant acceleration)
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">🟰 Uniform (Constant V)</div>
-                <div class="footer-tag">📈 Non-Uniform (Changing V)</div>
-                <div class="footer-tag">📊 Average (Total Disp.)</div>
-                <div class="footer-tag">⏱️ Instantaneous (dx/dt)</div>
-            </div>
-        </section>
-        
-        <!-- ==================== SLIDE 9: Acceleration ==================== -->
-        <section class="slide">
-            <div class="slide-number">9 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Acceleration</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Definition & Properties</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🚀</span>Definition: Acceleration</div>
-                            <ul class="point-list">
-                                <li><strong>Concept:</strong> "How quickly the velocity is changing."</li>
-                                <li><strong>Formal:</strong> The rate of change of velocity.</li>
-                                <li><strong>Quantity:</strong> Vector quantity. Its direction is the same as the direction of the change in velocity (Δv).</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">📐</span>Formula</div>
-                            <ul class="point-list">
-                                <li>Acceleration = Change in Velocity / Time Taken</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">a⃗ = (v⃗ - u⃗) / t = Δv⃗ / Δt</span></li>
-                                <li>(v⃗ = final velocity, u⃗ = initial velocity)</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">⏱️</span>Units & Dimension</div>
-                            <ul class="point-list">
-                                <li><strong>SI Unit:</strong> meter per second squared (m/s²) or ms⁻²</li>
-                                <li><strong>Dimensional Formula:</strong> [M⁰ L¹ T⁻²]</li>
-                            </ul>
-                        </li>
-                         <li>
-                            <div class="point-title"><span class="icon">💡</span>Cause of Acceleration</div>
-                            <ul class="point-list">
-                                <li>Acceleration occurs when velocity changes.</li>
-                                <li>Velocity changes if:
-                                    <ol style="padding-left: 20px; margin-top: 10px;">
-                                        <li>Speed changes.</li>
-                                        <li>Direction changes.</li>
-                                        <li>Both change.</li>
-                                    </ol>
-                                </li>
-                                <li style="list-style-type: none;">
-                                    <p class="point-example">Uniform circular motion is an accelerated motion because the direction is constantly changing (Centripetal Acceleration).</p>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="info-card">
-                        <h4>Types of Acceleration</h4>
-                        <table class="mini-table">
-                            <thead>
-                                <tr>
-                                    <th>Type</th>
-                                    <th>Condition</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Positive (+)</strong></td>
-                                    <td>Velocity is increasing</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Negative (-)</strong></td>
-                                    <td>Velocity is decreasing</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Zero (0)</strong></td>
-                                    <td>Constant Velocity</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="info-card" style="background: #fef2f2; border-color: #fca5a5; border-left: 4px solid #dc2626;">
-                        <h4 style="color: #991b1b;">Retardation / Deceleration</h4>
-                        <p style="color: #7f1d1d; line-height: 1.7;">
-                            <strong>Negative Acceleration</strong> is also called retardation or deceleration.
-                            <br>This occurs when the direction of acceleration is opposite to the direction of velocity, causing the object to slow down.
-                            <br><strong>Example:</strong> Applying brakes.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">🚀 Acceleration (Vector)</div>
-                <div class="footer-tag">📐 Formula: a = Δv / Δt</div>
-                <div class="footer-tag">⏱️ Unit: m/s²</div>
-                <div class="footer-tag">(-) Retardation</div>
-            </div>
-        </section>
-        
-        <!-- ==================== SLIDE 10: Types of Acceleration ==================== -->
-        <section class="slide">
-            <div class="slide-number">10 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Types of Acceleration</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Detailed Classification</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🟰</span>Uniform Acceleration</div>
-                            <ul class="point-list">
-                                <li>When the change in velocity is equal in equal intervals of time.</li>
-                                <li>Both Magnitude and Direction remain constant.</li>
-                                <li><strong>Example:</strong> Motion under gravity (g ≈ 9.8 m/s²).</li>
-                                <li>The Kinematic Equations are valid only in this condition.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">📈</span>Non-Uniform Acceleration</div>
-                            <ul class="point-list">
-                                <li>When the change in velocity is unequal in equal intervals of time.</li>
-                                <li>This happens if the magnitude or direction (or both) of acceleration is changing.</li>
-                                <li><strong>Example:</strong> A car's acceleration changing as it shifts gears.</li>
-                                <li>Calculus is required to analyze this.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">📊</span>Average Acceleration</div>
-                            <ul class="point-list">
-                                <li>The ratio of the total change in velocity to the total time interval.</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">a_avg = (v₂ - v₁) / (t₂ - t₁) = Δv / Δt</span></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">⏱️</span>Instantaneous Acceleration</div>
-                            <ul class="point-list">
-                                <li>The acceleration at a particular instant.</li>
-                                <li><strong>Calculus (1st Derivative):</strong> It is the derivative of velocity with respect to time.</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">a = dv / dt</span></li>
-                                <li><strong>Calculus (2nd Derivative):</strong> It is the second derivative of position with respect to time.</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">a = d²x / dt²</span></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="info-card">
-                        <h4>Calculus in Kinematics</h4>
-                        <p>This relationship is very important:</p>
-                        <div class="flow-chart" style="flex-direction: column; gap: 15px; margin-top: 15px;">
-                            <div class="flow-step" style="width: 100%;">Position (x)</div>
-                            <div class="flow-arrow" style="transform: rotate(90deg);">→ <span style="font-size: 16px; color: var(--text-medium);">(d/dt - Differentiate)</span></div>
-                            <div class="flow-step" style="width: 100%;">Velocity (v = dx/dt)</div>
-                            <div class="flow-arrow" style="transform: rotate(90deg);">→ <span style="font-size: 16px; color: var(--text-medium);">(d/dt - Differentiate)</span></div>
-                            <div class="flow-step" style="width: 100%;">Acceleration (a = dv/dt)</div>
+        <!-- Slide 3: Kinematic Equations -->
+        <div id="slide3" class="slide">
+            <div class="brand-logo">Prepe</div>
+            <h1 class="slide-title">Equations of Uniformly Accelerated Motion</h1>
+            <div class="flex-grow grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-6">
+                 <div class="card md:row-span-2">
+                    <h3 class="card-title"><i class="fa-solid fa-gears icon" style="--icon-color: #475569; --icon-bg: #f1f5f9;"></i> Conditions & Variables</h3>
+                    <div class="card-content flex flex-col justify-around text-sm">
+                        <div class="border-b-2 border-dashed border-gray-200 pb-3">
+                            <h4 class="font-bold text-lg text-gray-800">Condition for Use:</h4>
+                             <p class="mt-2 px-4">These equations are valid ONLY when the <strong>acceleration (a) is constant</strong> and motion is along a <strong>straight line</strong>.</p>
                         </div>
-                    </div>
-                     <div class="info-card grow">
-                        <h4>Integration</h4>
-                        <p>We can also go in reverse:</p>
-                         <ul style="margin-top: 15px; line-height: 2;">
-                            <li><strong>Velocity:</strong><br>
-                                <span style="font-family: monospace; font-weight: bold;">v = ∫ a dt</span></li>
-                            <li><strong>Position:</strong><br>
-                                <span style="font-family: monospace; font-weight: bold;">x = ∫ v dt</span></li>
-                         </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">🟰 Uniform (Constant a)</div>
-                <div class="footer-tag">📈 Non-Uniform (Variable a)</div>
-                <div class="footer-tag">⏱️ Instantaneous (dv/dt)</div>
-                <div class="footer-tag">🔗 Calculus Link</div>
-            </div>
-        </section>
-        
-        <!-- ==================== SLIDE 11: Kinematic Equations (Part 1) ==================== -->
-        <section class="slide">
-            <div class="slide-number">11 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Kinematic Equations - 1</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>The 3 Equations of Motion</h3>
-                    <div class="quick-fact" style="background: #fef2f2; border-color: #fca5a5; border-left-color: #dc2626;">
-                        <strong style="color: #991b1b;">CRITICAL ASSUMPTION:</strong>
-                        <p style="color: #7f1d1d;">These equations are valid ONLY when <strong>Acceleration ('a') is Constant</strong>.</p>
-                    </div>
-                    <ul style="margin-top: 20px;">
-                        <li>
-                            <div class="point-title"><span class="icon">1️⃣</span>First Equation: Velocity-Time Relation</div>
-                            <ul class="point-list">
-                                <li><strong>Equation:</strong> <span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">v = u + at</span></li>
-                                <li><strong>Where:</strong>
-                                    <ul>
-                                        <li>v = Final Velocity</li>
-                                        <li>u = Initial Velocity</li>
-                                        <li>a = Constant Acceleration</li>
-                                        <li>t = Time</li>
-                                    </ul>
-                                </li>
-                                <li><strong>Derivation (Calculus):</strong> We know `a = dv/dt`. So, `dv = a dt`. Integrating both sides: `∫dv = ∫a dt` from u to v and 0 to t. This gives `[v] from u to v = a[t] from 0 to t` => `v - u = at` => `v = u + at`.</li>
+                        <div class="py-3">
+                             <h4 class="font-bold text-lg text-gray-800">Variables:</h4>
+                            <ul class="mt-2 list-disc list-inside text-left px-4 space-y-1">
+                               <li><strong>u:</strong> Initial velocity</li>
+                               <li><strong>v:</strong> Final velocity</li>
+                               <li><strong>a:</strong> Constant acceleration</li>
+                               <li><strong>t:</strong> Time interval</li>
+                               <li><strong>s:</strong> Displacement</li>
                             </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">2️⃣</span>Second Equation: Position-Time Relation</div>
-                            <ul class="point-list">
-                                <li><strong>Equation:</strong> <span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">s = ut + ½at²</span></li>
-                                <li><strong>Where:</strong>
-                                    <ul>
-                                        <li>s = Displacement</li>
-                                        <li>u = Initial Velocity</li>
-                                        <li>t = Time</li>
-                                        <li>a = Constant Acceleration</li>
-                                    </ul>
-                                </li>
-                                <li><strong>Derivation (Calculus):</strong> We know `v = dx/dt`. And `v = u + at`. So, `dx/dt = u + at`. `dx = (u + at)dt`. Integrating both sides: `∫dx = ∫(u + at)dt` from 0 to s and 0 to t. `[x] from 0 to s = [ut + at²/2] from 0 to t` => `s = ut + ½at²`.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="formula-card">
-                        <h4>Equation 1</h4>
-                        <p>v = u + at</p>
-                    </div>
-                    <div class="formula-card">
-                        <h4>Equation 2</h4>
-                        <p>s = ut + ½at²</p>
-                    </div>
-                     <div class="info-card grow">
-                        <h4>Graphical Derivation (v-t graph)</h4>
-                        <p>These equations can also be derived from a v-t graph:</p>
-                        <ul>
-                            <li><strong>`v = u + at`</strong> comes from the Slope of the v-t graph.<br>Slope = a = (v-u) / t</li>
-                            <li><strong>`s = ut + ½at²`</strong> comes from the Area under the v-t graph.<br>Area = Area of Rectangle + Area of Triangle<br>Area = (u * t) + (½ * (v-u) * t)<br>... (substitute v-u = at) ...<br>Area = ut + ½(at)t = ut + ½at²</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">🔥 Constant 'a' ONLY</div>
-                <div class="footer-tag">1️⃣ v = u + at</div>
-                <div class="footer-tag">2️⃣ s = ut + ½at²</div>
-                <div class="footer-tag">Derivations (Calculus & Graph)</div>
-            </div>
-        </section>
-        
-        <!-- ==================== SLIDE 12: Kinematic Equations (Part 2) ==================== -->
-        <section class="slide">
-            <div class="slide-number">12 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Kinematic Equations - 2</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Remaining Equations</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">3️⃣</span>Third Equation: Velocity-Position Relation</div>
-                            <ul class="point-list">
-                                <li><strong>Equation:</strong> <span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">v² = u² + 2as</span></li>
-                                <li><strong>Use:</strong> This is very useful when time ('t') is not known or not asked for.</li>
-                                <li><strong>Derivation:</strong> From Eq 1, `t = (v-u)/a`. Substitute this 't' into Eq 2, `s = u[(v-u)/a] + ½a[(v-u)/a]²`.
-                                <br> `s = (uv - u²)/a + ½a(v² + u² - 2uv)/a²`
-                                <br> `s = (uv - u²)/a + (v² + u² - 2uv)/2a`
-                                <br> `2as = 2uv - 2u² + v² + u² - 2uv`
-                                <br> `2as = v² - u²`
-                                <br> `v² = u² + 2as`</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">4️⃣</span>Fourth Equation: Distance in nth second</div>
-                            <ul class="point-list">
-                                <li><strong>Concept:</strong> Distance in 5th sec = (Total distance in 5s) - (Total distance in 4s).</li>
-                                <li><strong>Formula:</strong> <span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">sₙ = u + (a/2)(2n - 1)</span></li>
-                                <li><strong>Where:</strong> `sₙ` = Distance covered in the nth second.</li>
-                                <li><strong>Derivation:</strong> 
-                                <br>`sₙ = s(n) - s(n-1)`
-                                <br>`sₙ = [un + ½an²] - [u(n-1) + ½a(n-1)²]`
-                                <br>`sₙ = un + ½an² - [un - u + ½a(n² - 2n + 1)]`
-                                <br>`sₙ = un + ½an² - un + u - ½an² + an - ½a`
-                                <br>`sₙ = u + an - ½a`
-                                <br>`sₙ = u + (a/2)(2n - 1)`</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="formula-card">
-                        <h4>Equation 3</h4>
-                        <p>v² = u² + 2as</p>
-                    </div>
-                    <div class="formula-card">
-                        <h4>Equation 4 (nth second)</h4>
-                        <p>sₙ = u + (a/2)(2n - 1)</p>
-                    </div>
-                     <div class="info-card grow">
-                        <h4>Problem Solving Strategy</h4>
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline-title">1. Read & Visualize</div>
-                                <div class="timeline-desc">Read the question and draw a rough sketch.</div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-title">2. List Variables</div>
-                                <div class="timeline-desc">What is given? (u, v, a, s, t) and what to find?</div>
-                            </div>
-                             <div class="timeline-item">
-                                <div class="timeline-title">3. Check 'a'</div>
-                                <div class="timeline-desc">Is acceleration (a) constant? If yes, proceed.</div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-title">4. Choose Equation</div>
-                                <div class="timeline-desc">Choose the equation that has 3 knowns and 1 unknown.</div>
-                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">3️⃣ v² = u² + 2as</div>
-                <div class="footer-tag">4️⃣ sₙ = u + a/2(2n-1)</div>
-                <div class="footer-tag">Problem Solving</div>
-                <div class="footer-tag">PYQ Practice</div>
-            </div>
-        </section>
-
-        <!-- ==================== SLIDE 13: Motion Under Gravity (Part 1) ==================== -->
-        <section class="slide">
-            <div class="slide-number">13 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Motion Under Gravity</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Free Fall</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🌎</span>Definition: Free Fall</div>
-                            <ul class="point-list">
-                                <li>When an object moves solely under the influence of the Gravitational Force, it is called free fall.</li>
-                                <li><strong>Assumption:</strong> We consider Air Resistance to be negligible.</li>
-                                <li>This is a perfect example of <strong>Uniform Acceleration</strong>.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">👇</span>Acceleration due to Gravity (g)</div>
-                            <ul class="point-list">
-                                <li>The acceleration produced in an object due to Earth's gravity is called 'g'.</li>
-                                <li><strong>Value:</strong> `g ≈ 9.8 m/s²` (or `10 m/s²` for calculations)</li>
-                                <li><strong>Direction:</strong> Always Vertically Downwards, towards the center of the Earth.</li>
-                                <li>The value of `g` does not depend on the object's mass, size, or density. (Galileo's Law)</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">🔄</span>Sign Convention</div>
-                            <ul class="point-list">
-                                <li>This is very important. We usually (Standard convention):</li>
-                                <li>Take <strong>Upward</strong> motion as Positive (+).</li>
-                                <li>Take <strong>Downward</strong> motion as Negative (-).</li>
-                                <li>According to this convention, `a` is always `-g` (or `-9.8 m/s²`), because 'g' always acts downwards.</li>
-                                <li>`u` (initial velocity) will be (+) if thrown up, (-) if thrown down.</li>
-                                <li>`s` (displacement) will be (+) if above the origin, (-) if below it.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="stat-box">
-                        <span class="stat-number">g ≈ 9.8</span>
-                        <span class="stat-label">m/s² (Standard Gravity)</span>
-                    </div>
-                     <div class="info-card grow">
-                        <h4>Galileo's Law of Fall</h4>
-                        <p>Galileo stated that in a vacuum, a feather and a hammer dropped from the same height will reach the ground at the same time.</p>
-                        <ul style="margin-top: 10px;">
-                            <li>This is because 'g' is the same for both and does not depend on mass.</li>
-                            <li>(This was proven on the moon during the Apollo 15 mission!)</li>
-                        </ul>
-                    </div>
-                    <div class="info-card" style="background: #fffbeb; border-color: #fde68a;">
-                        <h4>Alternate Convention</h4>
-                        <p>Sometimes, if the motion is only downwards (e.g., dropped from rest), <strong>Downward</strong> is taken as Positive (+) to simplify calculations.</p>
-                        <p style="margin-top: 10px;">In this case: `a = +g`, `u = 0`, `v` is (+), `s` is (+).</p>
-                        <p style="margin-top: 10px; font-weight: bold;">Consistency is key! (Stick to one convention)</p>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">🌎 Free Fall</div>
-                <div class="footer-tag">g = 9.8 m/s²</div>
-                <div class="footer-tag">Constant Acceleration</div>
-                <div class="footer-tag">Sign Convention is Key!</div>
-            </div>
-        </section>
-
-        <!-- ==================== SLIDE 14: Motion Under Gravity (Part 2) ==================== -->
-        <section class="slide">
-            <div class="slide-number">14 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Gravity: Equations & Cases</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Equations for Free Fall</h3>
-                    <p style="font-size: 18px; color: var(--text-medium); margin-bottom: 20px; padding: 15px; background: #f9fafb; border-radius: 12px;">
-                       We substitute <strong>`a = -g`</strong> (using upward as positive) into the Kinematic Equations. `s` can also be represented by `h` (height).
-                    </p>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div class="formula-card">
-                            <h4>Equation 1</h4>
-                            <p>v = u - gt</p>
-                        </div>
-                         <div class="formula-card">
-                            <h4>Equation 2</h4>
-                            <p>h = ut - ½gt²</p>
-                        </div>
-                         <div class="formula-card">
-                            <h4>Equation 3</h4>
-                            <p>v² = u² - 2gh</p>
-                        </div>
-                         <div class="formula-card">
-                            <h4>Equation 4 (nth)</h4>
-                            <p>hₙ = u - (g/2)(2n-1)</p>
-                        </div>
-                    </div>
-                    
-                    <h3 style="margin-top: 30px;">Special Cases</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">⬇️</span>Case 1: Dropped from Rest</div>
-                            <ul class="point-list">
-                                <li>Initial Velocity <strong>`u = 0`</strong>.</li>
-                                <li>Equations (using `a = -g`):
-                                    <ul>
-                                        <li>`v = -gt`</li>
-                                        <li>`h = -½gt²`</li>
-                                        <li>`v² = -2gh`</li>
-                                    </ul>
-                                </li>
-                                <li>(Note: v, h are negative, indicating downward motion)</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">⬆️</span>Case 2: Thrown Vertically Up</div>
-                            <ul class="point-list">
-                                <li>Initial Velocity <strong>`u` is Positive (+)</strong>.</li>
-                                <li>Acceleration <strong>`a = -g`</strong>.</li>
-                                <li>At maximum height: <strong>`v = 0`</strong>.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="info-card">
-                        <h4>Formulas for Upward Motion (Case 2)</h4>
-                        <ul>
-                            <li><strong>Maximum Height (H):</strong>
-                                <br>At top, v=0. Using `v² = u² - 2gh`:
-                                <br>`0 = u² - 2gH`
-                                <br><strong style="font-family: monospace; color: var(--secondary); font-size: 18px;">H = u² / 2g</strong>
-                            </li>
-                            <li style="margin-top: 15px;"><strong>Time of Ascent (tₐ):</strong>
-                                <br>At top, v=0. Using `v = u - gt`:
-                                <br>`0 = u - gtₐ`
-                                <br><strong style="font-family: monospace; color: var(--secondary); font-size: 18px;">tₐ = u / g</strong>
-                            </li>
-                             <li style="margin-top: 15px;"><strong>Total Time of Flight (T):</strong>
-                                <br>(Time up + Time down). `t_descent = t_ascent`.
-                                <br><strong style="font-family: monospace; color: var(--secondary); font-size: 18px;">T = 2tₐ = 2u / g</strong>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="quick-fact grow" style="display: flex; flex-direction: column; justify-content: center;">
-                       <strong>Symmetry of Motion:</strong>
-                       <p>Ignoring air resistance, at any given height:</p>
-                       <p><strong>Speed going up = Speed coming down</strong></p>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">⬇️ Dropped (u=0)</div>
-                <div class="footer-tag">⬆️ Thrown Up (v=0 at top)</div>
-                <div class="footer-tag">H = u²/2g</div>
-                <div class="footer-tag">T = 2u/g</div>
-            </div>
-        </section>
-        
-        <!-- ==================== SLIDE 15: Position-Time (x-t) Graphs - 1 ==================== -->
-        <section class="slide">
-            <div class="slide-number">15 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Position-Time (x-t) Graphs</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Understanding x-t Graphs</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">📈</span>What is an x-t Graph?</div>
-                            <ul class="point-list">
-                                <li>It shows the change in an object's Position (x) with Time (t).</li>
-                                <li>Time (t) is taken on the X-axis.</li>
-                                <li>Position (x) is taken on the Y-axis.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">⛰️</span>Slope of x-t Graph</div>
-                            <ul class="point-list">
-                                <li>The slope of an x-t graph gives <strong>Velocity (v)</strong>.</li>
-                                <li><strong>Slope = Δx / Δt = Velocity (v)</strong></li>
-                                <li><strong>Steeper slope:</strong> Higher velocity.</li>
-                                <li><strong>Flat slope (0 slope):</strong> Zero velocity (at rest).</li>
-                                <li><strong>Positive slope:</strong> Positive velocity.</li>
-                                <li><strong>Negative slope:</strong> Negative velocity.</li>
-                                <li><strong>Curved slope:</strong> Changing velocity = Acceleration.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                    
-                    <h3 style="margin-top: 20px;">Common x-t Graphs</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🛌</span>Case 1: Object at Rest</div>
-                            <ul class="point-list">
-                                <li>The object's position does not change with time.</li>
-                                <li><strong>Graph:</strong> A straight line parallel to the Time-axis (X-axis).</li>
-                                <li><strong>Slope:</strong> 0.</li>
-                                <li><strong>Velocity:</strong> 0.</li>
-                            </ul>
-                        </li>
-                         <li>
-                            <div class="point-title"><span class="icon">➡️</span>Case 2: Uniform Motion (v > 0)</div>
-                            <ul class="point-list">
-                                <li>The object is moving with constant velocity in the positive direction.</li>
-                                <li><strong>Graph:</strong> A straight line with a positive slope.</li>
-                                <li><strong>Slope:</strong> Constant & Positive.</li>
-                                <li><strong>Velocity:</strong> Constant & Positive.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="info-card grow" style="padding: 10px;">
-                        <h4 style="margin-left: 15px; margin-bottom: 0;">Graph Visualizations</h4>
-                         <!-- Inline SVG Diagram -->
-                        <svg width="100%" height="450" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Graph 1: At Rest -->
-                            <rect x="10" y="10" width="280" height="200" fill="#f9fafb" stroke="var(--border-color)" rx="8"/>
-                            <text x="150" y="30" text-anchor="middle" font-weight="bold" font-size="16">Case 1: At Rest</text>
-                            <!-- Axes -->
-                            <line x1="40" y1="180" x2="270" y2="180" stroke="var(--text-light)" stroke-width="2"/>
-                            <line x1="40" y1="180" x2="40" y2="50" stroke="var(--text-light)" stroke-width="2"/>
-                            <text x="275" y="185" font-size="14">t</text>
-                            <text x="35" y="45" font-size="14">x</text>
-                            <!-- Graph Line -->
-                            <line x1="40" y1="100" x2="260" y2="100" stroke="var(--primary)" stroke-width="3"/>
-                            <text x="150" y="120" font-size="14" fill="var(--primary-dark)">Slope = 0, Velocity = 0</text>
-                            
-                             <!-- Graph 2: Uniform Motion (v > 0) -->
-                            <rect x="10" y="230" width="280" height="210" fill="#f9fafb" stroke="var(--border-color)" rx="8"/>
-                            <text x="150" y="250" text-anchor="middle" font-weight="bold" font-size="16">Case 2: Uniform Velocity (v > 0)</text>
-                            <!-- Axes -->
-                            <line x1="40" y1="410" x2="270" y2="410" stroke="var(--text-light)" stroke-width="2"/>
-                            <line x1="40" y1="410" x2="40" y2="270" stroke="var(--text-light)" stroke-width="2"/>
-                            <text x="275" y="415" font-size="14">t</text>
-                            <text x="35" y="265" font-size="14">x</text>
-                            <!-- Graph Line -->
-                            <line x1="40" y1="410" x2="260" y2="280" stroke="var(--secondary)" stroke-width="3"/>
-                            <text x="150" y="380" font-size="14" fill="var(--secondary)">Slope = Constant & Positive</text>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">📈 x-t Graph</div>
-                <div class="footer-tag">Slope = Velocity</div>
-                <div class="footer-tag">🛌 At Rest (Flat line)</div>
-                <div class="footer-tag">➡️ Uniform Motion (Straight line)</div>
-            </div>
-        </section>
-        
-        <!-- ==================== SLIDE 16: Position-Time (x-t) Graphs - 2 ==================== -->
-        <section class="slide">
-            <div class="slide-number">16 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Position-Time (x-t) Graphs - 2</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>More x-t Graphs</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">⬅️</span>Case 3: Uniform Motion (v < 0)</div>
-                            <ul class="point-list">
-                                <li>The object is moving with constant velocity in the negative direction (towards the origin).</li>
-                                <li><strong>Graph:</strong> A straight line with a negative slope.</li>
-                                <li><strong>Slope:</strong> Constant & Negative.</li>
-                                <li><strong>Velocity:</strong> Constant & Negative.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">🚀</span>Case 4: Uniform Acceleration (a > 0)</div>
-                            <ul class="point-list">
-                                <li>The object's velocity is constantly increasing.</li>
-                                <li><strong>Graph:</strong> A Parabola opening upwards.</li>
-                                <li><strong>Slope:</strong> The slope is constantly increasing, indicating increasing velocity.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">🛑</span>Case 5: Uniform Retardation (a < 0)</div>
-                            <ul class="point-list">
-                                <li>The object's velocity is constantly decreasing.</li>
-                                <li><strong>Graph:</strong> A Parabola opening downwards.</li>
-                                <li><strong>Slope:</strong> The slope is constantly decreasing, indicating decreasing velocity.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="info-card grow" style="padding: 10px;">
-                        <h4 style="margin-left: 15px; margin-bottom: 0;">Graph Visualizations</h4>
-                         <!-- Inline SVG Diagram -->
-                        <svg width="100%" height="450" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Graph 3: Uniform Motion (v < 0) -->
-                            <rect x="10" y="10" width="280" height="200" fill="#f9fafb" stroke="var(--border-color)" rx="8"/>
-                            <text x="150" y="30" text-anchor="middle" font-weight="bold" font-size="16">Case 3: Uniform Velocity (v < 0)</text>
-                            <!-- Axes -->
-                            <line x1="40" y1="180" x2="270" y2="180" stroke="var(--text-light)" stroke-width="2"/>
-                            <line x1="40" y1="180" x2="40" y2="50" stroke="var(--text-light)" stroke-width="2"/>
-                            <text x="275" y="185" font-size="14">t</text>
-                            <text x="35" y="45" font-size="14">x</text>
-                            <!-- Graph Line -->
-                            <line x1="40" y1="60" x2="260" y2="180" stroke="var(--primary)" stroke-width="3"/>
-                            <text x="150" y="130" font-size="14" fill="var(--primary-dark)">Slope = Constant & Negative</text>
-                            
-                             <!-- Graph 4: Acceleration (a > 0) -->
-                            <rect x="10" y="230" width="280" height="210" fill="#f9fafb" stroke="var(--border-color)" rx="8"/>
-                            <text x="150" y="250" text-anchor="middle" font-weight="bold" font-size="16">Case 4: Acceleration (a > 0)</text>
-                            <!-- Axes -->
-                            <line x1="40" y1="410" x2="270" y2="410" stroke="var(--text-light)" stroke-width="2"/>
-                            <line x1="40" y1="410" x2="40" y2="270" stroke="var(--text-light)" stroke-width="2"/>
-                            <text x="275" y="415" font-size="14">t</text>
-                            <text x="35" y="265" font-size="14">x</text>
-                            <!-- Graph Line -->
-                            <path d="M 40 410 Q 150 400, 260 280" stroke="var(--secondary)" stroke-width="3" fill="none"/>
-                            <text x="150" y="380" font-size="14" fill="var(--secondary)">Slope is Increasing (Parabola)</text>
-                        </svg>
-                    </div>
-                     <div class="info-card" style="background: #fef2f2; border-color: #fca5a5;">
-                        <h4 style="color: #991b1b;">Impossible x-t Graph</h4>
-                        <p style="color: #7f1d1d;">A straight vertical line (perpendicular to the time-axis) on an x-t graph is impossible.</p>
-                        <p style="color: #7f1d1d; margin-top: 10px;">It would mean that the position (`x`) changed without any time passing (`Δt=0`), which implies <strong>infinite velocity</strong>, which is impossible.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">⬅️ Negative Velocity</div>
-                <div class="footer-tag">🚀 Acceleration (Curve Up)</div>
-                <div class="footer-tag">🛑 Retardation (Curve Down)</div>
-                <div class="footer-tag">Impossible Graphs</div>
-            </div>
-        </section>
-
-        <!-- ==================== SLIDE 17: Velocity-Time (v-t) Graphs - 1 ==================== -->
-        <section class="slide">
-            <div class="slide-number">17 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Velocity-Time (v-t) Graphs</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Understanding v-t Graphs</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">📊</span>What is a v-t Graph?</div>
-                            <ul class="point-list">
-                                <li>It shows the change in an object's Velocity (v) with Time (t).</li>
-                                <li>Time (t) is taken on the X-axis.</li>
-                                <li>Velocity (v) is taken on the Y-axis.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">⛰️</span>Slope of v-t Graph</div>
-                            <ul class="point-list">
-                                <li>The slope of a v-t graph gives <strong>Acceleration (a)</strong>.</li>
-                                <li><strong>Slope = Δv / Δt = Acceleration (a)</strong></li>
-                                <li><strong>Positive slope:</strong> Positive acceleration.</li>
-                                <li><strong>Negative slope:</strong> Negative acceleration (retardation).</li>
-                                <li><strong>Zero slope (Flat line):</strong> Zero acceleration = Constant velocity.</li>
-                            </ul>
-                        </li>
-                         <li>
-                            <div class="point-title"><span class="icon">🖼️</span>Area under v-t Graph</div>
-                            <ul class="point-list">
-                                <li>The area between the v-t graph and the time-axis gives <strong>Displacement (s)</strong>.</li>
-                                <li><strong>Area = Velocity × Time = Displacement (s)</strong></li>
-                                <li>Area above the time-axis = Positive displacement.</li>
-                                <li>Area below the time-axis = Negative displacement.</li>
-                                <li><strong>Total Distance</strong> = Absolute sum of all areas.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="info-card grow" style="padding: 10px;">
-                        <h4 style="margin-left: 15px; margin-bottom: 0;">Graph Visualizations</h4>
-                         <!-- Inline SVG Diagram -->
-                        <svg width="100%" height="450" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Graph 1: Constant Velocity -->
-                            <rect x="10" y="10" width="280" height="200" fill="#f9fafb" stroke="var(--border-color)" rx="8"/>
-                            <text x="150" y="30" text-anchor="middle" font-weight="bold" font-size="16">Case 1: Constant Velocity (a=0)</text>
-                            <!-- Axes -->
-                            <line x1="40" y1="180" x2="270" y2="180" stroke="var(--text-light)" stroke-width="2"/>
-                            <line x1="40" y1="180" x2="40" y2="50" stroke="var(--text-light)" stroke-width="2"/>
-                            <text x="275" y="185" font-size="14">t</text>
-                            <text x="35" y="45" font-size="14">v</text>
-                            <!-- Graph Line -->
-                            <line x1="40" y1="100" x2="260" y2="100" stroke="var(--primary)" stroke-width="3"/>
-                            <text x="150" y="120" font-size="14" fill="var(--primary-dark)">Slope = 0, Accel. = 0</text>
-                            <!-- Area -->
-                            <path d="M 40 180 L 40 100 L 260 100 L 260 180 Z" fill="var(--primary-light)" fill-opacity="0.5"/>
-                            <text x="150" y="150" font-size="14" fill="var(--primary-dark)">Area = Displacement</text>
-                            
-                             <!-- Graph 2: Constant Acceleration (a > 0) -->
-                            <rect x="10" y="230" width="280" height="210" fill="#f9fafb" stroke="var(--border-color)" rx="8"/>
-                            <text x="150" y="250" text-anchor="middle" font-weight="bold" font-size="16">Case 2: Constant Accel. (a > 0)</text>
-                            <!-- Axes -->
-                            <line x1="40" y1="410" x2="270" y2="410" stroke="var(--text-light)" stroke-width="2"/>
-                            <line x1="40" y1="410" x2="40" y2="270" stroke="var(--text-light)" stroke-width="2"/>
-                            <text x="275" y="415" font-size="14">t</text>
-                            <text x="35" y="265" font-size="14">v</text>
-                            <!-- Graph Line (starting from u=0) -->
-                            <line x1="40" y1="410" x2="260" y2="280" stroke="var(--secondary)" stroke-width="3"/>
-                            <text x="150" y="380" font-size="14" fill="var(--secondary)">Slope = Constant & Positive</text>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">📊 v-t Graph</div>
-                <div class="footer-tag">Slope = Acceleration</div>
-                <div class="footer-tag">Area = Displacement</div>
-                <div class="footer-tag">🔥 Most Important Graph</div>
-            </div>
-        </section>
-
-        <!-- ==================== SLIDE 18: Velocity-Time (v-t) Graphs - 2 ==================== -->
-        <section class="slide">
-            <div class="slide-number">18 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Velocity-Time (v-t) Graphs - 2</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>More v-t Graphs</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">🏁</span>Case 3: Const. Acceleration (u > 0, a > 0)</div>
-                            <ul class="point-list">
-                                <li>The object starts with an initial velocity (u) and then accelerates uniformly.</li>
-                                <li><strong>Graph:</strong> A straight line starting from `u` on the Y-axis and going up (positive slope).</li>
-                                <li><strong>Slope:</strong> Constant & Positive.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">🛑</span>Case 4: Constant Retardation (a < 0)</div>
-                            <ul class="point-list">
-                                <li>The object starts with an initial velocity `u` and then slows down uniformly.</li>
-                                <li><strong>Graph:</strong> A straight line starting from `u` on the Y-axis and going down (negative slope).</li>
-                                <li>If the line crosses the time-axis, it means the object stopped (`v=0`) and (if it continues) accelerated in the opposite direction.</li>
-                            </ul>
-                        </li>
-                         <li>
-                            <div class="point-title"><span class="icon">📈</span>Case 5: Non-Uniform Acceleration</div>
-                            <ul class="point-list">
-                                <li>The acceleration is changing.</li>
-                                <li><strong>Graph:</strong> A curve.</li>
-                                <li>Instantaneous acceleration = Slope of the tangent to the curve at that point.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                     <div class="info-card grow" style="padding: 10px;">
-                        <h4 style="margin-left: 15px; margin-bottom: 0;">Graph Visualizations</h4>
-                         <!-- Inline SVG Diagram -->
-                        <svg width="100%" height="450" viewBox="0 0 300 450" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Graph 3: Const. Accel (u>0) -->
-                            <rect x="10" y="10" width="280" height="200" fill="#f9fafb" stroke="var(--border-color)" rx="8"/>
-                            <text x="150" y="30" text-anchor="middle" font-weight="bold" font-size="16">Case 3: Const. Accel. (u > 0)</text>
-                            <!-- Axes -->
-                            <line x1="40" y1="180" x2="270" y2="180" stroke="var(--text-light)" stroke-width="2"/>
-                            <line x1="40" y1="180" x2="40" y2="50" stroke="var(--text-light)" stroke-width="2"/>
-                            <text x="275" y="185" font-size="14">t</text>
-                            <text x="35" y="45" font-size="14">v</text>
-                            <text x="30" y="150" font-size="14" fill="var(--text-dark)">u</text>
-                            <!-- Graph Line -->
-                            <line x1="40" y1="150" x2="260" y2="60" stroke="var(--primary)" stroke-width="3"/>
-                            
-                             <!-- Graph 4: Const. Retardation (a < 0) -->
-                            <rect x="10" y="230" width="280" height="210" fill="#f9fafb" stroke="var(--border-color)" rx="8"/>
-                            <text x="150" y="250" text-anchor="middle" font-weight="bold" font-size="16">Case 4: Const. Retardation (a < 0)</text>
-                            <!-- Axes -->
-                            <line x1="40" y1="410" x2="270" y2="410" stroke="var(--text-light)" stroke-width="2"/>
-                            <line x1="40" y1="410" x2="40" y2="270" stroke="var(--text-light)" stroke-width="2"/>
-                            <text x="275" y="415" font-size="14">t</text>
-                            <text x="35" y="265" font-size="14">v</text>
-                            <text x="30" y="290" font-size="14" fill="var(--text-dark)">u</text>
-                            <!-- Graph Line -->
-                            <line x1="40" y1="290" x2="260" y2="410" stroke="var(--secondary)" stroke-width="3"/>
-                            <text x="150" y="350" font-size="14" fill="var(--secondary)">Slope = Constant & Negative</text>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">📈 v-t Graph Analysis</div>
-                <div class="footer-tag">Positive Slope (Accel.)</div>
-                <div class="footer-tag">Negative Slope (Retard.)</div>
-                <div class="footer-tag">Curve (Non-uniform a)</div>
-            </div>
-        </section>
-
-        <!-- ==================== SLIDE 19: Relative Velocity ==================== -->
-        <section class="slide">
-            <div class="slide-number">19 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Relative Velocity</div>
-            </div>
-            <div class="slide-content">
-                <div class="main-column">
-                    <h3>Concept of Relative Velocity</h3>
-                    <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">👓</span>Definition</div>
-                            <ul class="point-list">
-                                <li>The velocity of one object (A) with respect to another moving object (B).</li>
-                                <li>It measures how fast and in which direction A *appears* to move, as seen by B.</li>
-                                <li>All velocities are actually relative to the Earth, which is our default 'stationary' frame.</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">📐</span>Formula (1D)</div>
-                            <ul class="point-list">
-                                <li>Velocity of A relative to B:</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">v_AB = v_A - v_B</span></li>
-                                <li>Velocity of B relative to A:</li>
-                                <li><span style="font-family: monospace; font-weight: bold; color: var(--primary-dark);">v_BA = v_B - v_A</span></li>
-                                <li>Note: <span style="font-family: monospace;">v_AB = -v_BA</span> (Same magnitude, opposite direction)</li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <h3 style="margin-top: 20px;">Special Cases (1D)</h3>
-                     <ul>
-                        <li>
-                            <div class="point-title"><span class="icon">➡️➡️</span>Case 1: Same Direction</div>
-                            <ul class="point-list">
-                                <li>Two trains are moving in the same direction with `v_A` and `v_B`.</li>
-                                <li>`v_A = +50` m/s, `v_B = +30` m/s</li>
-                                <li>Relative velocity: `v_AB = v_A - v_B = 50 - 30 = +20` m/s.</li>
-                                <li>(A appears to move 20 m/s faster than B).</li>
-                                <li>Relative speed = `|v_A - v_B|`</li>
-                            </ul>
-                        </li>
-                        <li>
-                            <div class="point-title"><span class="icon">➡️⬅️</span>Case 2: Opposite Direction</div>
-                            <ul class="point-list">
-                                <li>Two trains are moving towards each other with `v_A` and `v_B`.</li>
-                                <li>`v_A = +50` m/s, `v_B = -30` m/s (opposite direction)</li>
-                                <li>Relative velocity: `v_AB = v_A - v_B = 50 - (-30) = +80` m/s.</li>
-                                <li>(They appear to approach each other at a faster speed of 80 m/s).</li>
-                                <li>Relative speed = `v_A + v_B`</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="side-column">
-                    <div class="info-card">
-                        <h4>Real-life Applications</h4>
-                        <ul>
-                            <li><strong>Overtaking:</strong> Time for one train to pass another `t = (L_A + L_B) / (v_A - v_B)` (same direction).</li>
-                            <li><strong>Crossing:</strong> Time for two trains to cross `t = (L_A + L_B) / (v_A + v_B)` (opposite direction).</li>
-                            <li><strong>Rain-Man Problems:</strong> At what angle to hold an umbrella to avoid rain (2D).</li>
-                            <li><strong>River-Boat Problems:</strong> Shortest path or shortest time to cross a river (2D).</li>
-                        </ul>
-                    </div>
-                     <div class="quick-fact grow" style="display: flex; flex-direction: column; justify-content: center;">
-                       <strong>Mental Trick:</strong>
-                       <p>To find <strong>`v_AB`</strong>, 'stop' <strong>`v_B`</strong> (treat it as 0) and add the same `(-v_B)` velocity to `v_A`.</p>
-                       <p style="margin-top: 10px; font-family: monospace; font-size: 18px; font-weight: bold;">v_AB = v_A + (-v_B)</p>
-                    </div>
-                </div>
-            </div>
-            <div class="slide-footer">
-                <div class="footer-tag">👓 Relative Motion</div>
-                <div class="footer-tag">v_AB = v_A - v_B</div>
-                <div class="footer-tag">➡️➡️ Same (Subtract)</div>
-                <div class="footer-tag">➡️⬅️ Opposite (Add)</div>
-            </div>
-        </section>
-
-        <!-- ==================== SLIDE 20: SUMMARY & REVISION ==================== -->
-        <section class="slide">
-            <div class="slide-number">20 / 20</div>
-            <div class="slide-header">
-                <div class="brand">Prepe</div>
-                <div class="slide-title">Summary & Revision 📚</div>
-            </div>
-            <div class="slide-content">
-                <div style="width: 100%; display: flex; flex-direction: column; gap: 25px;">
-                    <div class="info-card" style="background: #f9fafb;">
-                        <h4>🎯 PYQ Focus Topics</h4>
-                        <div class="badge-grid" style="grid-template-columns: repeat(4, 1fr); gap: 15px;">
-                            <div class="badge">Distance vs. Displacement</div>
-                            <div class="badge">Speed vs. Velocity</div>
-                            <div class="badge">Average Speed (Numerical)</div>
-                            <div class="badge">Acceleration (a = Δv/Δt)</div>
-                            <div class="badge">Kinematic Equations (All 4)</div>
-                            <div class="badge">Motion Under Gravity (g)</div>
-                            <div class="badge">x-t Graphs (Slope = v)</div>
-                            <div class="badge">v-t Graphs (Slope=a, Area=s)</div>
-                            <div class="badge">Relative Velocity (Trains)</div>
-                            <div class="badge">Formulas (H = u²/2g)</div>
-                            <div class="badge">Sign Convention (+/-)</div>
-                            <div class="badge">Calculus (dx/dt, dv/dt)</div>
-                        </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px;">
-                        <div class="info-card">
-                            <h4>Formula Wall 📐</h4>
-                            <table class="mini-table" style="font-family: monospace; font-size: 17px; font-weight: bold;">
-                                <thead>
-                                    <tr>
-                                        <th>Formula</th>
-                                        <th>Condition</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>v = u + at</td>
-                                        <td>Constant 'a'</td>
-                                    </tr>
-                                    <tr>
-                                        <td>s = ut + ½at²</td>
-                                        <td>Constant 'a'</td>
-                                    </tr>
-                                    <tr>
-                                        <td>v² = u² + 2as</td>
-                                        <td>Constant 'a'</td>
-                                    </tr>
-                                     <tr>
-                                        <td>sₙ = u + (a/2)(2n-1)</td>
-                                        <td>Constant 'a'</td>
-                                    </tr>
-                                    <tr>
-                                        <td>v = dx/dt</td>
-                                        <td>Instantaneous</td>
-                                    </tr>
-                                    <tr>
-                                        <td>a = dv/dt = d²x/dt²</td>
-                                        <td>Instantaneous</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="info-card">
-                            <h4>Graph Summary 📊</h4>
-                            <ul style="line-height: 2; font-weight: 500;">
-                                <li><strong>x-t Graph:</strong><br>
-                                    <span style="font-size: 15px; color: var(--primary-dark);">↳ Slope = Velocity</span></li>
-                                <li><strong>v-t Graph:</strong><br>
-                                    <span style="font-size: 15px; color: var(--secondary);">↳ Slope = Acceleration</span><br>
-                                    <span style="font-size: 15px; color: var(--secondary);">↳ Area = Displacement</span></li>
+                         <div class="pt-3">
+                            <h4 class="font-bold text-lg text-gray-800 flex items-center"><i class="fa-solid fa-apple-whole text-xl w-8 mr-2 text-red-500"></i> Motion Under Gravity</h4>
+                             <ul class="mt-2 list-disc list-inside text-left px-4 space-y-1">
+                                <li>Special case where a = g (approx 9.8 m/s²)</li>
+                                <li>Conventionally: a = +g (downward), a = -g (upward)</li>
                             </ul>
                         </div>
                     </div>
                 </div>
+                <div class="card">
+                     <h3 class="card-title"><i class="fa-solid fa-1 icon"></i> First Equation (v-t)</h3>
+                      <div class="card-content text-sm space-y-2 pl-2">
+                        <p>Relates final velocity, initial velocity, acceleration, and time.</p>
+                        <p class="formula text-base md:text-lg">v = u + at</p>
+                        <p>Derived from definition of acceleration: a = (v-u)/t</p>
+                     </div>
+                </div>
+                 <div class="card">
+                    <h3 class="card-title" style="--icon-color: #16a34a; --icon-bg: #f0fdf4;"><i class="fa-solid fa-2 icon"></i> Second Equation (s-t)</h3>
+                      <div class="card-content text-sm space-y-2 pl-2">
+                        <p>Relates displacement, initial velocity, time, and acceleration.</p>
+                         <p class="formula text-base md:text-lg">s = ut + ½ at²</p>
+                        <p>Derived using average velocity: s = v<sub>avg</sub> × t = [(u+v)/2] × t and v = u+at</p>
+                     </div>
+                </div>
+                  <div class="card">
+                    <h3 class="card-title" style="--icon-color: #f59e0b; --icon-bg: #fffbeb;"><i class="fa-solid fa-3 icon"></i> Third Equation (v-s)</h3>
+                      <div class="card-content text-sm space-y-2 pl-2">
+                        <p>Relates final velocity, initial velocity, acceleration, and displacement.</p>
+                         <p class="formula text-base md:text-lg">v² = u² + 2as</p>
+                        <p>Derived by eliminating 't' from the first two equations.</p>
+                     </div>
+                </div>
             </div>
-            <div class="slide-footer">
-                <div class="footer-tag">📚 Final Revision</div>
-                <div class="footer-tag">🎯 Quick Recap</div>
-                <div class="footer-tag">⭐ Exam Essentials</div>
-                <div class="footer-tag">🏆 You are ready!</div>
-            </div>
-        </section>
+        </div>
 
-    </main>
+        <!-- Slide 4: Graphs -->
+        <div id="slide4" class="slide">
+            <div class="brand-logo">Prepe</div>
+            <h1 class="slide-title">Graphical Representation of Motion</h1>
+            <div class="flex-grow w-full grid grid-cols-1 md:grid-cols-3 md:grid-rows-3 gap-6">
+                 <div class="card md:row-span-2">
+                    <h3 class="card-title"><i class="fa-solid fa-chart-line icon" style="--icon-color: #ef4444; --icon-bg: #fee2e2;"></i> Position-Time (x-t) Graph</h3>
+                    <ul class="card-content text-sm list-disc list-inside space-y-2.5 pl-2">
+                        <li>Slope gives <strong>Instantaneous Velocity</strong> (v = dx/dt).</li>
+                        <li>Straight line parallel to time axis: Object at <strong>rest</strong> (v=0).</li>
+                        <li>Straight line with constant slope: <strong>Uniform velocity</strong> (v=constant, a=0).</li>
+                        <li>Curve (Parabola for const. a): <strong>Non-uniform velocity</strong>.</li>
+                        <li>Steeper slope means higher speed.</li>
+                        <li>Slope can be positive, negative, or zero.</li>
+                    </ul>
+                </div>
+                 <div class="card md:row-span-2">
+                     <h3 class="card-title" style="--icon-color: #22c55e; --icon-bg: #dcfce7;"><i class="fa-solid fa-chart-area icon"></i> Velocity-Time (v-t) Graph</h3>
+                     <ul class="card-content text-sm list-disc list-inside space-y-2.5 pl-2">
+                        <li>Slope gives <strong>Instantaneous Acceleration</strong> (a = dv/dt).</li>
+                        <li>Area under the curve gives <strong>Displacement</strong> (s = ∫v dt).</li>
+                         <li>Straight line parallel to time axis: <strong>Uniform velocity</strong> (a=0).</li>
+                        <li>Straight line with constant slope: <strong>Uniform acceleration</strong> (a=constant).</li>
+                        <li>Curve: <strong>Non-uniform acceleration</strong>.</li>
+                        <li>Area above time axis is positive displacement, below is negative.</li>
+                     </ul>
+                </div>
+                 <div class="card md:row-span-2">
+                    <h3 class="card-title" style="--icon-color: #f43f5e; --icon-bg: #fff1f2;"><i class="fa-solid fa-chart-bar icon"></i> Acceleration-Time (a-t) Graph</h3>
+                    <ul class="card-content text-sm list-disc list-inside space-y-2.5 pl-2">
+                       <li>Area under the curve gives <strong>Change in Velocity</strong> (Δv = ∫a dt).</li>
+                       <li>Straight line parallel to time axis: <strong>Uniform acceleration</strong>.</li>
+                       <li>Line coinciding with time axis (a=0): <strong>Uniform velocity</strong>.</li>
+                       <li>Varying line/curve: <strong>Non-uniform acceleration</strong>.</li>
+                    </ul>
+                </div>
+                 <div class="card md:col-span-3 bg-gray-100/50">
+                     <h3 class="card-title text-gray-700" style="--icon-color: #4b5563; --icon-bg: #e5e7eb;"><i class="fa-solid fa-people-arrows icon"></i> Relative Velocity (1-D)</h3>
+                     <ul class="card-content text-sm list-disc list-inside grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 pl-2">
+                         <li>Velocity of A relative to B: <strong class="formula inline-block !p-1 !m-0">V<sub>AB</sub> = V<sub>A</sub> - V<sub>B</sub></strong></li>
+                        <li>Velocity of B relative to A: <strong class="formula inline-block !p-1 !m-0">V<sub>BA</sub> = V<sub>B</sub> - V<sub>A</sub></strong></li>
+                        <li>Note: <strong class="formula inline-block !p-1 !m-0">V<sub>AB</sub> = -V<sub>BA</sub></strong></li>
+                         <li>If moving in same direction, relative speed is |V<sub>A</sub> - V<sub>B</sub>|.</li>
+                         <li>If moving in opposite directions, relative speed is |V<sub>A</sub> + V<sub>B</sub>|.</li>
+                         <li>Important for problems involving overtakes, crossings, etc.</li>
+                     </ul>
+                </div>
+            </div>
+        </div>
+
+         <!-- Follow Up Section (Kept as is from template) -->
+         <div class="slide"> 
+             <div class="flex flex-col h-full justify-center items-center text-center p-6 md:p-12 bg-gradient-to-br from-gray-50 to-blue-100">
+                <p class="text-xl md:text-2xl font-semibold text-blue-600 mb-2 md:mb-4">Welcome to Prepe</p>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-5"> Boost Your Preparation!</h2>
+                <p class="text-base md:text-lg text-gray-600 mb-8 md:mb-12">Check out our other amazing courses.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12 w-full max-w-4xl">
+                    <a href="https://offer.prepeai.in" target="_blank" class="block bg-white p-6 rounded-2xl border border-gray-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out">
+                        <i class="fa-solid fa-tags text-4xl text-green-500 mb-3"></i>
+                        <h3 class="font-bold text-lg text-green-800">FLAT 50% OFF</h3>
+                        <p class="text-sm text-gray-500 mt-1">Limited Time Offer</p>
+                    </a>
+                    <a href="https://shop.prepeai.in" target="_blank" class="block bg-white p-6 rounded-2xl border border-gray-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out">
+                        <i class="fa-solid fa-layer-group text-4xl text-teal-500 mb-3"></i>
+                        <h3 class="font-bold text-lg text-teal-800">Explore More Courses</h3>
+                        <p class="text-sm text-gray-500 mt-1">Expand Your Knowledge</p>
+                    </a>
+                    <a href="https://instagram.com/prepe.ai" target="_blank" class="block bg-white p-6 rounded-2xl border border-gray-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out">
+                        <i class="fab fa-instagram text-4xl text-pink-500 mb-3"></i>
+                        <h3 class="font-bold text-lg text-pink-800">Follow on Instagram</h3>
+                        <p class="text-sm text-gray-500 mt-1">@prepe.ai</p>
+                    </a>
+                </div>
+                <div class="border-t-2 border-dashed border-gray-300 pt-8 md:pt-10 w-full max-w-4xl">
+                    <a href="https://www.prepeai.in" target="_blank" class="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold text-lg md:text-xl py-3 px-8 md:py-4 md:px-10 rounded-full shadow-lg hover:scale-105 transition-transform duration-300">
+                        <i class="fa-solid fa-globe mr-2"></i> Visit Our Website
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button id="download-pdf-btn">
+        <i class="fa-solid fa-file-pdf mr-2"></i> Download PDF
+    </button>
+
+    <script>
+        const downloadPdfBtn = document.getElementById('download-pdf-btn');
+        const loaderOverlay = document.getElementById('loader-overlay');
+
+        downloadPdfBtn.addEventListener('click', async () => {
+            loaderOverlay.style.display = 'flex';
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [1080, 1080] 
+            });
+            const pdfWidth = 1080;
+            const pdfHeight = 1080; 
+
+            const slides = document.querySelectorAll('.slide');
+            const originalBodyStyle = document.body.style.cssText;
+            const originalScrollContainerStyle = document.querySelector('.scroll-container').style.cssText;
+
+            document.body.style.overflow = 'hidden'; 
+            document.body.style.height = 'auto'; 
+            const scrollContainer = document.querySelector('.scroll-container');
+            scrollContainer.style.overflow = 'visible'; 
+            scrollContainer.style.height = 'auto'; 
+            scrollContainer.style.padding = '0'; 
+
+
+            for (let i = 0; i < slides.length; i++) {
+                const slide = slides[i];
+                const originalSlideStyle = slide.style.cssText; 
+
+                slide.style.position = 'absolute'; 
+                slide.style.left = '0px';
+                slide.style.top = '0px';
+                slide.style.width = `${pdfWidth}px`; 
+                slide.style.height = `${pdfHeight}px`; 
+                slide.style.margin = '0'; 
+                slide.style.borderRadius = '0'; 
+                slide.style.boxShadow = 'none'; 
+                
+                slides.forEach((s, index) => {
+                    if (i !== index) s.style.visibility = 'hidden'; 
+                });
+                slide.style.visibility = 'visible';
+                
+                await new Promise(resolve => setTimeout(resolve, 100)); 
+
+                const canvas = await html2canvas(slide, {
+                    scale: 2, 
+                    useCORS: true,
+                    backgroundColor: null, 
+                    logging: false,
+                    width: pdfWidth, 
+                    height: pdfHeight, 
+                    x: 0, y: 0,
+                    scrollX: 0, scrollY: 0
+                });
+
+                slide.style.cssText = originalSlideStyle; 
+                 slides.forEach((s, index) => {
+                     s.style.visibility = 'visible'; 
+                 });
+
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = canvas.width;
+                finalCanvas.height = canvas.height;
+                const ctx = finalCanvas.getContext('2d');
+                
+                // Use the physics gradient
+                const gradient = ctx.createLinearGradient(0, 0, finalCanvas.width, finalCanvas.height);
+                gradient.addColorStop(0, '#f0f9ff'); // Physics gradient start
+                gradient.addColorStop(1, '#e0f2fe'); // Physics gradient end
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                
+                ctx.drawImage(canvas, 0, 0);
+
+                const imgData = finalCanvas.toDataURL('image/jpeg', 0.92); 
+
+                if (i > 0) {
+                    doc.addPage([pdfWidth, pdfHeight], 'portrait');
+                }
+                
+                doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+
+                 const links = slide.querySelectorAll('a[href]');
+                 if (links.length > 0) {
+                     links.forEach(link => {
+                         try {
+                             const rect = link.getBoundingClientRect();
+                             const slideRect = { top: 0, left: 0, width: pdfWidth, height: pdfHeight }; 
+                             const scaleFactor = pdfWidth / slide.offsetWidth; 
+                             const x = rect.left * scaleFactor; 
+                             const y = rect.top * scaleFactor;
+                             const w = rect.width * scaleFactor;
+                             const h = rect.height * scaleFactor;
+
+                             if (x >= 0 && y >= 0 && w > 0 && h > 0 && (x + w) <= pdfWidth && (y + h) <= pdfHeight) {
+                                doc.link(x, y, w, h, { url: link.href });
+                             } 
+                         } catch (e) {
+                             console.error("Error processing link:", link, e);
+                         }
+                     });
+                 }
+            }
+            
+            document.body.style.cssText = originalBodyStyle; 
+            scrollContainer.style.cssText = originalScrollContainerStyle; 
+
+            doc.save('Prepe-Physics-Motion.pdf');
+            loaderOverlay.style.display = 'none';
+        });
+    </script>
 </body>
 </html>
+
